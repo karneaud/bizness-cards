@@ -12,6 +12,7 @@
   "dependencies": {
     "@inkline/inkline": "^4.2.1",
     "@vueuse/core": "^10.7.2",
+    "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.1.7",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5"
