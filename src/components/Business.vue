@@ -3,38 +3,38 @@
     <i-form @submit="submitForm">
       <i-form-group>
         <i-label for="logo">Logo</i-label>
-        <i-input type="file" id="logo" v-model="business.logo" />
+        <i-input type="file" id="logo" v-model.lazy="business.logo" />
       </i-form-group>
 
       <i-form-group>
         <i-label for="organization">Organization</i-label>
-        <i-input type="text" id="organization" v-model="business.organization" />
+        <i-input type="text" id="organization" v-model.lazy="business.organization" />
       </i-form-group>
 
       <i-form-group>
         <i-label for="phone">Phone</i-label>
-        <i-input type="number" id="phone" v-model="business.phone" />
+        <i-input type="number" id="phone" v-model.lazy="business.phone" />
       </i-form-group>
 
       <i-form-group>
         <i-label for="email">Email</i-label>
-        <i-input type="email" id="email" v-model="business.email" />
+        <i-input type="email" id="email" v-model.lazy="business.email" />
       </i-form-group>
 
       <i-form-group>
         <i-label for="contactName">Contact Name</i-label>
-        <i-input type="text" id="contactName" v-model="business.contactName" />
+        <i-input type="text" id="contactName" v-model.lazy="business.contactName" />
       </i-form-group>
 
       <i-form-group>
         <i-label for="website">Website</i-label>
-        <i-input type="url" id="website" v-model="business.website" />
+        <i-input type="url" id="website" v-model.lazy="business.website" />
       </i-form-group>
 
       <div v-for="(link, index) in business.socialMedia" :key="index">
         <i-form-group>
           <i-label :for="`social-media-${index}`">Social Media</i-label>
-          <i-input type="text" :id="`social-media-${index}`" v-model="business.socialMedia[index]"> 
+          <i-input type="text" :id="`social-media-${index}`" v-model.lazy="business.socialMedia[index]"> 
             <template #prepend>
                 <i-button @click="removeSocialMediaLink(index)">-</i-button>
             </template>
@@ -54,42 +54,27 @@
 </template>
 
 <script setup>
-import { ref , onBeforeMount } from 'vue'
-import router from '../routes'
-import { useMainStore } from '../store'
+  import { reactive, toRefs } from 'vue'
+  import router from '../routes'
+  import { useMainStore } from '../store'
+  import { storeToRefs } from 'pinia'
 
-const store = useMainStore()
-
-const business = ref({
-  logo: '',
-  organization: '',
-  phone: '',
-  email: '',
-  contactName: '',
-  website: '',
-  socialMedia: ['']
-})
-
-const addSocialMediaLink = () => {
-  business.value.socialMedia.push('')
-}
-
-const updateSocialMediaLink = (index) => {
-  business.value.socialMedia[index] = business.value.socialMedia[index]
-}
-
-const removeSocialMediaLink = (index) => {
-  business.value.socialMedia.splice(index, 1)
-}
-
-const submitForm = () => {
-  store.addBusiness(business.value)
-  router.push('/')
-}
-
-onBeforeMount(() => {
-  if (router.currentRoute.value.params.business) {
-    business.value = router.currentRoute.value.params.business
+  const store = useMainStore(), { getBusiness: { value: getBusinessById } } = storeToRefs(store), id = router.currentRoute.value.params.id || null, business = getBusinessById( id ) || reactive({
+    logo: '',
+    organization: '',
+    phone: '',
+    email: '',
+    contactName: '',
+    website: '',
+    socialMedia: ['']
+  }), addSocialMediaLink = () => {
+    business.value.socialMedia.push('')
+  }, updateSocialMediaLink = (index) => {
+    business.value.socialMedia[index] = business.value.socialMedia[index]
+  }, removeSocialMediaLink = (index) => {
+    business.value.socialMedia.splice(index, 1)
+  }, submitForm = () => {
+    store.setBusiness(business, id )
+    router.push('/')
   }
-})
 </script>
