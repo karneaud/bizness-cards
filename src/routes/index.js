@@ -32,10 +32,10 @@ const router = createRouter({
       }
     },*/
     {
-      path: '/business',
+      path: '/business/:id?',
       name: 'Business',
       component: Business,
-      props: route => ({ business: route.params.business || null })
+      props: route => ({ id: route.params.id || null })
     }
   ]
 })
