@@ -13,6 +13,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+._text-overflow\:ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+._max-width\:90\% {
+  max-width: 90%;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
