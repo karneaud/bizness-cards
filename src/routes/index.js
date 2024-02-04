@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../components/Home.vue'
 //import Profile from './components/Profile.vue'
-//import Card from './components/Card.vue'
+import Card from '../components/Card.vue'
 import Business from '../components/Business.vue'
 
 const router = createRouter({
@@ -17,20 +17,20 @@ const router = createRouter({
       name: 'Profile',
       component: Profile,
       props: route => ({ user: route.params.user || null })
-    },
+    },*/
     {
-      path: '/card',
+      path: '/card/:id',
       name: 'Card',
       component: Card,
-      props: route => ({ business: route.params.business }),
+      props: route => ({ id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        if (!to.params.business) {
+        if (!to.params.id) {
           next({ name: 'Home' })
         } else {
           next()
         }
       }
-    },*/
+    },
     {
       path: '/business/:id?',
       name: 'Business',
