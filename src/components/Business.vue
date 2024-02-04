@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <section>
     <i-form @submit="submitForm">
       <i-form-group>
         <i-label for="logo">Logo</i-label>
@@ -21,11 +21,20 @@
         <i-input type="email" id="email" v-model.lazy="business.email" />
       </i-form-group>
 
-      <i-form-group>
-        <i-label for="contactName">Contact Name</i-label>
-        <i-input type="text" id="contactName" v-model.lazy="business.contactName" />
-      </i-form-group>
-
+      <div class="_display:flex">
+        <i-form-group>
+          <i-label for="firstName">First Name</i-label>
+          <i-input type="text" id="firstName" v-model.lazy="business.firstName" />
+        </i-form-group>
+          <i-form-group>
+          <i-label for="lastName">Last Name</i-label>
+          <i-input type="text" id="lastName" v-model.lazy="business.lastName" />
+        </i-form-group>
+      </div>
+          <i-form-group>
+          <i-label for="job">Job Title</i-label>
+          <i-input type="text" id="job" v-model.lazy="business.job" />
+        </i-form-group>
       <i-form-group>
         <i-label for="website">Website</i-label>
         <i-input type="url" id="website" v-model.lazy="business.website" />
@@ -50,7 +59,7 @@
 
       <i-button type="submit">Submit</i-button>
     </i-form>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -64,15 +73,18 @@
     organization: '',
     phone: '',
     email: '',
-    contactName: '',
+    firstName: '',
+    lastName:'',
     website: '',
-    socialMedia: ['']
+    job:'',
+    socialMedia: [''],
+    theme: 'default'
   }), addSocialMediaLink = () => {
-    business.value.socialMedia.push('')
+    business.socialMedia.push('')
   }, updateSocialMediaLink = (index) => {
-    business.value.socialMedia[index] = business.value.socialMedia[index]
+    business.socialMedia[index] = business.socialMedia[index]
   }, removeSocialMediaLink = (index) => {
-    business.value.socialMedia.splice(index, 1)
+    business.socialMedia.splice(index, 1)
   }, submitForm = () => {
     store.setBusiness(business, id )
     router.push('/')
