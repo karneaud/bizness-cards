@@ -1,0 +1,371 @@
+
+
+.theme-card.default {
+  overflow: hidden;
+  background-color: #efefef;
+  display: grid;
+  align-content: center;
+  align-items: stretch;
+  justify-items: center;
+
+  & {
+    display: grid;
+  }
+
+  a,  a:link, a:visited, a:active {
+    color: inherit;
+  }
+
+  .name, .job, .company, .email, .phone, .website, .social {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .name {
+    order: 3; text-transform: uppercase; 
+    font-weight: bold;
+
+    & > * { margin: 0 8px; }
+  }
+
+  .company {
+    order: 2;
+  }
+
+  .job {
+    order: 4;
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  .phone, .email, .website {
+    display: flex;
+    order: 5;
+  }
+
+  .phone .link, .email .link, .website .link, .social .platform .link {
+    font-weight: bold;
+    align-items: center;
+
+    .text {
+      font-family:var(--body--font-family, var(--font-family-primary-base));
+    }
+  }
+
+  .social .platform {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 2px;
+    justify-content: center;
+    height: 100%;
+    font-family: ui-sans-serif;
+
+    .heading { display: none !important; }
+    .link { 
+      display: flex;justify-items: center;align-items: center; 
+
+      .text {
+        font-family: inherit;
+      } 
+    }
+  }
+
+  .vcard {
+
+    .heading {
+      display: none;
+    }
+
+    .qr-code img { margin: 4px; box-shadow: 4px 4px 12px rgba(0,0,0,0.14); width: 100%; }
+  }
+
+  .show {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0,0,0,0.95);
+    display: flex;
+    overflow: hidden;
+    
+    *:not(img) {
+      display: none;
+    }
+
+    .qr-code {
+        overflow: hidden;
+
+        i { display: none; }
+        
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+
+       .hidden {
+          display: block;
+         
+       }
+    }
+  }
+
+  @media screen and (orientation: landscape) {
+    & {
+        grid-template-columns: .78fr 1fr; 
+        grid-auto-flow: column; 
+        height: 100%;
+        padding: 0 8px;
+    }
+
+    .name {
+      font-size: 125%;
+    }
+    
+    .company, .name, .job, .phone, .email, .social, .website {
+      grid-column: 2; 
+      display: flex;
+      justify-content: center;
+
+      & > * {
+        display:flex;
+        font-weight: bold;
+        justify-items:center;
+        align-items: center;
+        margin-left: 8px;
+      }
+
+      padding: 4px 8px;
+    }
+
+    .phone .heading, .email .heading, .website .heading {
+      display: none;
+    }
+  
+    .vcard {
+      grid-column: 1;
+      grid-row: 1/span 7;
+      align-items: center;
+      justify-items: center;
+      flex-direction: row;
+      align-content: center;
+      display: flex;
+
+      .qr-code { 
+        i {
+          display: none;
+        }
+
+        img {
+          width: 50%;
+        }
+      }
+    } 
+
+    .social {
+      order: 7;
+      flex-direction: column;
+    }
+
+    .show {
+
+      flex-direction: column;
+
+      .qr-code {
+
+        img {
+          height: 70vh !important;
+          width: auto !important;
+        }
+      }
+    }
+
+    @media (min-height: 768px) {
+       .name {
+         font-size: 180%;
+       }
+
+       .job {
+        font-size: 150%;
+       }
+
+       .company {
+        font-size: 135%;
+       }
+    }
+  }
+
+  @media screen and (orientation: portrait) {
+    
+    grid-template-rows: .5fr auto; 
+    grid-template-columns: 1fr;
+    padding: 8px 0;
+    height: inherit;
+
+    .name {
+      flex-direction: column;
+      display: flex;
+    }
+
+    .company, .name, .job, .phone, .email, .website, .social { grid-row: auto; grid-column: 1; height: fit-content; }
+
+    .company {
+      margin-bottom: 8px;
+    }
+
+    .phone, .email , .website , .social .platform {
+      
+      justify-content: center;
+
+      .heading {
+        display: none;
+      }
+
+      &:not(.platform) {
+        order: 4;
+      }
+
+      .link {
+        display: flex;
+        justify-content: center;
+
+        i {
+          margin-right: 8px;
+        }
+
+        .text {
+          order: 3;
+          
+        }
+      }
+
+      &:not(.platform) .qr-code {
+        order:1; 
+        display:flex;
+        font-weight: bold;
+        justify-content:center;
+        align-items: center;
+        margin-left: 8px;
+      }
+
+      
+    }
+
+    .website {
+      margin-bottom: 8px;
+    }
+    
+    .social .platform {
+       .qr-code {
+        margin-left: 8px;
+       }
+    }
+    
+    .vcard {
+      .heading {
+        display: none;
+      }
+
+      .qr-code { margin: 0 auto 8px auto;     display: flex;
+        flex-direction: column;
+        align-items: center; }
+
+      text-align: center; display: block; grid-row: 1; grid-column: 1;
+    }
+    
+    .social { order:7; margin: 8px; text-align: center; }
+
+    .show {
+
+      flex-direction: column;
+
+      .qr-code {
+
+        img {
+          width: 70vw !important;
+        }
+      }
+    }
+
+    @media (min-width: 320px) {
+      .name {
+        font-size: 175%;
+      }
+
+      .vcard {
+        .qr-code {
+            img {
+              width: 35vw;
+            }
+        }
+      }
+    }
+
+    @media (min-height: 768px) {
+
+      .name {
+        flex-direction: row;
+        justify-content: center;
+       
+      }
+
+      
+
+      .company {
+        font-size: 125%;
+      }
+
+      .job {
+        font-size: 165%;
+      }
+
+      .phone, .email , .website , .social .platform {
+          flex-direction: column;
+          
+          &:not(.platform) {
+            flex-direction: column;
+
+            .qr-code {
+              &:before {
+                display: none;
+              }
+      
+              i {
+                display:none; 
+              }
+      
+              .hidden {
+                display: block;
+              }
+            }
+          }
+      }
+
+      .social .platform {
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 8px;
+
+        .qr-code {
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  @media (min-width: 320px) {
+    .social {
+      flex-direction: column;
+      .platform {
+        height: auto;
+        .link .text {
+          font-size: 95%;
+        }
+      }
+    }
+  }
+}
