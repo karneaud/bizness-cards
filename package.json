@@ -14,7 +14,10 @@
     "@vueuse/core": "^10.7.2",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.1.7",
+    "socicon-sass": "^1.0.6",
+    "vcards-js-updated": "^2.10.1",
     "vue": "^3.3.11",
+    "vue-qrcode": "^2.2.2",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
@@ -22,6 +25,7 @@
     "@inkline/plugin": "^1.5.2",
     "@vitejs/plugin-vue": "^4.5.2",
     "sass": "^1.64.0",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-plugin-pwa": "^0.17.5"
   }
 }
