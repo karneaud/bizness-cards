@@ -1,3 +1,5 @@
+@import "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css";
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -11,6 +13,10 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.hidden {
+  display: none;
 }
 
 ._text-overflow\:ellipsis {
@@ -70,16 +76,9 @@ button:focus-visible {
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center; height: 100vh;
 }
 
-button#create-button {
-  display: flex;
-  margin: 0 auto;
-  width: 50%;
-  padding: 50%;
-}
 
 @media (prefers-color-scheme: light) {
   :root {
