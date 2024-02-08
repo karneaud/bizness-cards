@@ -2,29 +2,26 @@
   import { useMainStore } from '../store'
   import router from '../routes'
 
-  const store = useMainStore(),  cards = store.cards, createProfile = () => router.push('/business', null ), businesses = store.businesses, hasBusinesses = businesses.length > 0, remove = (index) => store.removeBusiness(index)
+  const store = useMainStore(),  cards = store.cards, createProfile = () => router.push('/business', null ), businesses = store.businesses, hasBusinesses = true, remove = (index) => store.removeBusiness(index)
 
 </script>
     <template>
         <i-layout class="_width:100%! _height:100%">
-          <i-layout-content>
+          <i-layout-content class="_overflow:hidden _display:flex _justify-content:center _align-items:center">
             <article v-if="!hasBusinesses">
               <h1>Create Card</h1>
               <p>To begin...Let's create a business profile</p>
               <i-button id="create-button" circle outline size="lg" color="primary" @click="createProfile">Create</i-button>
             </article>
-            <article v-else  class="_width:100%! _clearfix!">
+            <article v-else  class="_width:100%! _height:100%! _overflow:hidden _flex-direction:column _display:flex _align-items:center _justify-content:center ">
             <h2>Business Cards</h2>
-              <i-list-group :border="false" class="_width:100%!">
-                <i-list-group-item class="_border-bottom! _display:flex! _padding-left:0! _width:100%"  v-for="(business, index) in businesses" :key="index">
-                  <div class="_padding-right:1 _flex:fill!"><router-link :to="`/business/${index}`"><i class="bx bx-edit bx-sm"></i></router-link></div>
-                  <router-link :to="`/card/${index}`" class="_text:left! _display:flex _max-width:90% _width:100vw">
-                    <span class="_text-overflow:ellipsis _padding-right:1 _width:100%!"><strong>{{ business.organization }}</strong></span>
-                    <span class="_text:right!">&#x203A;</span>
-                  </router-link>
-                  <div class="_flex:fill! _padding-left:1"><a @click="remove(index)"><i class="bx bx-minus-circle bx-sm"></i></a></div>
-                </i-list-group-item>
-              </i-list-group>
+              <card-stack>
+                <template v-slot="slotProps">
+                  <stack-card @swipe="slotProps.handleSwipeEvent" v-for="(i,index) in [1,2,3,4,5]" ref="stackedCards" :key="index" :style="{ zIndex: i }" :isActive="`${ i == 5}`" :id="`card-${i}-${index}`">
+                    <div class=""><p>Card {{ i }}</p></div>
+                  </stack-card>
+                </template>
+              </card-stack>
               </article>
             </i-layout-content>
           <i-layout-footer v-if="hasBusinesses">
