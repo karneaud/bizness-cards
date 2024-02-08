@@ -8,3 +8,8 @@ router.push('/')
  <template>
       <router-view  class="_width:100%!" />
   </template>
+  <style scoped>
+    #app {
+        overflow: hidden;
+    }
+</style>
