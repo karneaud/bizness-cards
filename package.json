@@ -12,6 +12,7 @@
   "dependencies": {
     "@inkline/inkline": "^4.2.1",
     "@vueuse/core": "^10.7.2",
+    "interactjs": "^1.10.26",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.1.7",
     "socicon-sass": "^1.0.6",
