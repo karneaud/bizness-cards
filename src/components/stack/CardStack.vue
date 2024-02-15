@@ -1,5 +1,5 @@
 <template>
-    <div ref="stack" class="card-stack">
+    <div ref="stack" class="card-stack" @click="">
       <slot :handleSwipeEvent="handleSwipeEvent"></slot>
     </div>
   </template>
@@ -10,30 +10,26 @@
       const stack = ref(), cards = useSlots(), stackedCards = ref([]) ;
     
       function handleSwipeEvent({ card }) {
-         card.addEventListener('transitionend', handleTransitionEnd, { once: true })
-         card.classList.add('swipe')
+        card.addEventListener('transitionend', handleTransitionEnd, { once: true })
+        
+        for(var i = 0; i < stack.value.children.length; i++)  {
+          let card = stack.value.children.item(i)
+          card.__vnode.ctx.exposed.incrementZIndex()
+        };
+
+        card.classList.add('swipe')
       }
   
       onMounted(async () => {
         await nextTick();
         const active = stack.value.children.item((stack.value.children.length -1 ))
-        active.__vnode.ctx.exposed.setActive()
+        active.__vnode.ctx.exposed.isActive.value = true
       });
   
       function handleTransitionEnd(event) {
-        event.target.style.zIndex = 1;
         event.target.classList.remove('swipe')
-
-        for(var i = 0; i< stack.value.children.length ; i++)  {
-            let card = stack.value.children.item(i)
-          if (card !== event.target) {
-            card.style.zIndex = Number(card.style.zIndex) + 1;
-          }
-          
-          if(card.style.zIndex == stack.value.children.length) {
-            card.__vnode.ctx.exposed.setActive()
-          }
-        };
+        event.target.__vnode.ctx.exposed.setZIndex(0)
+        
       }
   
   </script>
@@ -46,6 +42,7 @@
     position: relative;
     display: inline-flex;
     justify-content: center;
+    
   }
   </style>
   
