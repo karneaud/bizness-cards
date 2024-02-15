@@ -1,68 +1,90 @@
 <template>
-    <div ref="card" class="stack-card" :class="{ expand: isExpanded, edit: isEditing }">
+    <div ref="card" class="stack-card" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:tap="toggleExpand" v-touch:drag="doDrag">
       <slot></slot>
     </div>
   </template>
   
   <script setup>
-  import { ref, defineEmits, watch, defineExpose } from 'vue';
-  import interact from 'interactjs';
-  
-  const card = ref(null),
+  import { ref, watch,  onMounted } from 'vue';
+
+  const card = ref(null), 
       isExpanded = ref(false),
       isEditing = ref(false),
-      isActive = ref(false), interactXThreshold = 100,   
-      emit = defineEmits(['swipe','move','drag']);
-      let position = { x:0, y: 0 }
-      watch(isActive, (n,o) => {  
-        console.log(`#${card.value.id}`)
-        if(n)  interact(`#${card.value.id}`)
-            .draggable({
-              listeners: {
-                move(event) {
-                  position.x += event.dx
-                  position.y += event.dy
-                  event.target.style.transform =
-                    `translate(${position.x}px, ${position.y}px)`
-                },
-                end: (event) => {
-                  if(position.x > interactXThreshold) {
-                    emit('swipe', { card: event.target  }); 
-                    isActive.value = false;
-                  }
+      isDragging = ref(false),
+      isActive = ref(false),
+      zIndex = ref(0),
+      props = defineProps({
+        zIndex: 0
+      }),
+      emit = defineEmits(['swiping']);
 
-                  position.x = position.y = 0;
-                  event.target.style.transform =
-                    `translate(${position.x}px, ${position.y}px)`
-                  
-                }
-              }
-            })
-            .gesturable({
-              onstart: function (event) {
-                isExpanded.value = true;
-              },
-              onend: function (event) {
-                isExpanded.value = false;
-              },
-            })
-            .on('doubletap', function (event) {
-              if (isExpanded.value) {
-                isExpanded.value = false;
-              } else {
-                isEditing.value = !isEditing.value;
-              }
-            })
-           else interact(`#${card.value.id}`).unset()
-      } )
+      let position = {}, boundRect = {};
 
-      function setActive() {
-        isActive.value = true;
+      onMounted(() => {
+        boundRect = card.value.parentElement.getBoundingClientRect()
+        zIndex.value = props.zIndex
+      })
+
+      function setPos(e) {
+        let { clientX : x, clientY : y } = e.touches[0];
+
+        position = { x, y }
+      }
+
+      function toggleExpand(e) {
+
+        if(!isExpanded.value) {
+          isExpanded.value = true
+          setZIndex(100)
+        }
+        if(e.type == 'swipe.top' && isExpanded.value) isExpanded.value = false
+      }
+
+      function doSwipe(e) {
+        emit('swiping', { card : card.value })
+        incrementZIndex()
+      }
+
+      function doDrag(e) {
+        if(isExpanded.value) return 
+        
+        let { clientX, clientY } = e.touches[0]
+        position.x = clientX - card.value.getBoundingClientRect().x
+        if(position.x < boundRect.x ) position.x  = boundRect.x
+        if(position.x > boundRect.right/3 ) position.x = boundRect.right/3
+
+        card.value.style.transform = `translate(${position.x }px, 0px)`
+        if(!isDragging.value) isDragging.value = true
+      }
+
+      function stopDrag() {
+         if(isDragging.value) {
+          isDragging.value = false
+          position = { x: 0, y: 0 }
+          card.value.style.transform = 'translate(0px, 0px)'
+         }
+
+         if(isExpanded.value) isExpanded.value = false
+      }
+
+      function setZIndex(index) {
+        zIndex.value = index
+      }
+
+      function incrementZIndex() {
+        zIndex.value  += 1
+      }
+
+      function getZIndex() {
+         return zIndex.value
       }
 
       defineExpose({
         card,
-        setActive
+        isActive,
+        setZIndex,
+        getZIndex,
+        incrementZIndex
       })
   </script>
   <style lang="scss" scoped>
