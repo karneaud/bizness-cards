@@ -12,14 +12,14 @@
   "dependencies": {
     "@inkline/inkline": "^4.2.1",
     "@vueuse/core": "^10.7.2",
-    "interactjs": "^1.10.26",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.1.7",
     "socicon-sass": "^1.0.6",
     "vcards-js-updated": "^2.10.1",
     "vue": "^3.3.11",
     "vue-qrcode": "^2.2.2",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue3-touch-events": "^4.1.8"
   },
   "devDependencies": {
     "@inkline/config": "^1.9.1",
