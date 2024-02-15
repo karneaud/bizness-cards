@@ -2,8 +2,6 @@
     width: 90%;
     height: 60vh;
     border: 1px solid;
-    touch-action: none;
-    user-select: none;
     border-radius: 16px;
     padding: 8px;
     background: white;
@@ -12,13 +10,18 @@
     justify-content: center;
     align-items: center;
     transition: all 0.08s cubic-bezier(0.25, 0.1, 0.25, 1);
-    
-    &.expand, &.edit {
+    top:0;
+    left: 0;
+    transform-origin: center;
+
+    &.expanded, &.edit {
         width: 100vw;
         height: 100vh;
         position: fixed;
         top: 0;
         left: 0;
+        touch-action: inherit;
+        user-select: inherit;
     }
 
     &.swipe {
