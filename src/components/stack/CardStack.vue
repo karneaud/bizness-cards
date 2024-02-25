@@ -38,7 +38,7 @@
   .card-stack {
     /* add your styles here */
     width: 100%;
-    height: inherit;
+    height: 60vh;
     position: relative;
     display: inline-flex;
     justify-content: center;
