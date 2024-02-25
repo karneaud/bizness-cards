@@ -1,5 +1,5 @@
 <template>
-    <div ref="card" class="stack-card" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:tap="toggleExpand" v-touch:drag="doDrag">
+    <div ref="card" class="stack-card" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:drag="doDrag" v-touch:touchmove="doPinch">
       <slot></slot>
     </div>
   </template>
@@ -18,7 +18,7 @@
       }),
       emit = defineEmits(['swiping']);
 
-      let position = {}, boundRect = {};
+      let position = {}, boundRect = {}, pinch = {};
 
       onMounted(() => {
         boundRect = card.value.parentElement.getBoundingClientRect()
@@ -29,6 +29,12 @@
         let { clientX : x, clientY : y } = e.touches[0];
 
         position = { x, y }
+
+        if(e.touches.length > 1) {
+          let { clientY : y2 } = e.touches[1];
+          pinch = { y1: position.y, y2 }
+        }
+
       }
 
       function toggleExpand(e) {
@@ -46,7 +52,7 @@
       }
 
       function doDrag(e) {
-        if(isExpanded.value) return 
+        if(isExpanded.value || e.touches.length > 1) return 
         
         let { clientX, clientY } = e.touches[0]
         position.x = clientX - card.value.getBoundingClientRect().x
@@ -66,6 +72,29 @@
 
          if(isExpanded.value) isExpanded.value = false
       }
+
+      function doPinch(e) {
+        const MIN_PIXES_DISTANCE = 25;
+
+        // If is not using 2 fingers
+        const touches = e.changedTouches;
+        if (touches.length !== 2) {
+          pinch = {};
+          return;
+        } 
+        
+        let { clientY: pinch1 } = touches[0], { clientY: pinch2 } = touches[1]
+        
+        console.log('pinch', pinch1, pinch2)
+        if (
+        (pinch.y1 - pinch1 < -MIN_PIXES_DISTANCE &&
+          pinch.y2 - pinch2 >= MIN_PIXES_DISTANCE) ||
+        (pinch.y2 - pinch2 < -MIN_PIXES_DISTANCE &&
+          pinch.y1 - pinch1 >= MIN_PIXES_DISTANCE)
+        ) {
+          toggleExpand(e)
+        }
+    }
 
       function setZIndex(index) {
         zIndex.value = index
