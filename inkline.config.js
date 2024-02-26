@@ -190,6 +190,23 @@ export default defineConfig({
                 },
                 h6: {
                     fontSize: 'var(--font-size)'
+                },
+                input:{
+                    border: {
+                        top: {
+                            width: 0
+                        },
+                        left: {
+                            width: 0
+                        },
+                        right: {
+                            width: 0
+                        }
+                    },
+                    box: {
+                        shadow: 'none'
+                    },
+                    transition: 'all .52s'
                 }
             },
             variants: {
@@ -763,6 +780,25 @@ export default defineConfig({
                 body: {
                     background: 'var(--color-dark-shade-50)',
                     color: 'var(--color-gray-100)'
+                },
+                input:{
+                    border: {
+                        top: {
+                            width: 0
+                        },
+                        left: {
+                            width: 0
+                        },
+                        right: {
+                            width: 0
+                        }
+                    },
+                    background: {
+                        color: 'transparent !important'
+                    },
+                    box: {
+                        shadow: 'none'
+                    }
                 }
             }
         }
