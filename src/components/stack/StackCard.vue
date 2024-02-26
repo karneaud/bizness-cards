@@ -1,11 +1,12 @@
 <template>
     <div ref="card" class="stack-card" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:drag="doDrag" v-touch:touchmove="doPinch">
-      <slot></slot>
+      <slot v-if="isExpanded" name="content"></slot>
+      <slot v-if="!isExpanded" name="placeholder" :toggleExpand="toggleExpand"></slot>
     </div>
   </template>
   
   <script setup>
-  import { ref, watch,  onMounted } from 'vue';
+  import { ref,  onMounted } from 'vue';
 
   const card = ref(null), 
       isExpanded = ref(false),
@@ -43,6 +44,7 @@
           isExpanded.value = true
           setZIndex(100)
         }
+
         if(e.type == 'swipe.top' && isExpanded.value) isExpanded.value = false
       }
 
@@ -69,8 +71,6 @@
           position = { x: 0, y: 0 }
           card.value.style.transform = 'translate(0px, 0px)'
          }
-
-         if(isExpanded.value) isExpanded.value = false
       }
 
       function doPinch(e) {
@@ -84,8 +84,6 @@
         } 
         
         let { clientY: pinch1 } = touches[0], { clientY: pinch2 } = touches[1]
-        
-        console.log('pinch', pinch1, pinch2)
         if (
         (pinch.y1 - pinch1 < -MIN_PIXES_DISTANCE &&
           pinch.y2 - pinch2 >= MIN_PIXES_DISTANCE) ||
