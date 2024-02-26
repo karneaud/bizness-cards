@@ -5,7 +5,7 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, nextTick, useSlots } from 'vue';
+  import { ref, useSlots } from 'vue';
   
       const stack = ref(), cards = useSlots(), stackedCards = ref([]) ;
     
@@ -19,12 +19,6 @@
 
         card.classList.add('swipe')
       }
-  
-      onMounted(async () => {
-        await nextTick();
-        const active = stack.value.children.item((stack.value.children.length -1 ))
-        active.__vnode.ctx.exposed.isActive.value = true
-      });
   
       function handleTransitionEnd(event) {
         event.target.classList.remove('swipe')
