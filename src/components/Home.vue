@@ -1,8 +1,7 @@
 <script setup>
   import { useMainStore } from '../store'
-  import router from '../routes'
 
-  const store = useMainStore(),  cards = store.cards, createProfile = () => router.push('/business', null ), businesses = store.businesses, hasBusinesses = true, remove = (index) => store.removeBusiness(index)
+  const store = useMainStore(), businesses = store.businesses
 
 </script>
     <template> 
@@ -11,8 +10,23 @@
                 <h2>Business Cards</h2>
                 <card-stack class="_clearfix _height:60vh!">
                   <template v-slot="slotProps">
-                    <stack-card @swiping="slotProps.handleSwipeEvent" v-for="(i,index) in [1,2,3,4,5]" ref="stackedCards" :key="index"  :zIndex="i" :id="`card-${i}-${index}`">
-                      <div class=""><p>Card {{ i }}</p></div>
+                    <stack-card @swiping="slotProps.handleSwipeEvent" v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="i" :id="`card-$-${index}`">
+                      <template #content>
+                        <card :props="{ card }" v-slot="slotProps" />
+                      </template>
+                      <template #placeholder>
+                        {{ card.company }}
+                      </template>
+                    </stack-card>
+
+                    <stack-card @swiping="slotProps.handleSwipeEvent" ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2}`">
+                      <template #content>
+                        <business />
+                      </template>
+                      <template #placeholder="slotProps">
+                        <h2>Create Card</h2>
+                        <i-button size="lg" outline color="primary" @click="slotProps.toggleExpand" circle><i-icon name="ink-plus"></i-icon></i-button>
+                      </template>
                     </stack-card>
                   </template>
                 </card-stack>
