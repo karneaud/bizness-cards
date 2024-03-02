@@ -4,7 +4,7 @@
     border: 1px solid;
     border-radius: 16px;
     padding: 8px;
-    background: white;
+    background-color: var(--color-white);
     display: flex;
     position: absolute;
     justify-content: center;
@@ -13,6 +13,7 @@
     transition: all 0.08s cubic-bezier(0.25, 0.1, 0.25, 1);
     top:0;
     transform-origin: center;
+    overflow: hidden;
 
     &.expanded, &.edit {
         width: 100vw;
@@ -28,4 +29,9 @@
         left: 105%;
     }
 }
-  
+
+@media (prefers-color-scheme: dark) {
+   .stack-card {
+     background-color: var(--color-dark);
+   }
+}
