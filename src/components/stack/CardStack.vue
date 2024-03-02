@@ -1,31 +1,32 @@
 <template>
-    <div ref="stack" class="card-stack" @click="">
+    <div ref="stack" class="card-stack">
       <slot :handleSwipeEvent="handleSwipeEvent"></slot>
     </div>
   </template>
   
   <script setup>
-  import { ref, useSlots } from 'vue';
+  import { ref, useSlots, onMounted } from 'vue';
+  import CardFlick from '../../lib/card-flick.js';
   
       const stack = ref(), cards = useSlots(), stackedCards = ref([]) ;
     
-      function handleSwipeEvent({ card }) {
-        
-        card.addEventListener('transitionend', handleTransitionEnd, { once: true })
+      function handleSwipeEvent( card ) {
         
         for(var i = 0; i < stack.value.children.length; i++)  {
-          let card = stack.value.children.item(i)
-          card.__vnode.ctx.exposed.incrementZIndex()
+          let ocard = stack.value.children.item(i)
+          ocard.__vnode.ctx.exposed.incrementZIndex()
         };
 
-        card.classList.add('swipe')
       }
-  
-      function handleTransitionEnd(event) {
-        event.target.classList.remove('swipe')
-        event.target.__vnode.ctx.exposed.setZIndex(0)
-        
-      }
+
+      onMounted(() => {
+        let cardFlick = new CardFlick(stack.value, stack.value.children, {
+            swipeThreshold: 100,
+            transitionDuration: 300,
+            onSwipeRight: (card) => handleSwipeEvent(card),
+            onHandeFlyOffCard: (card) => card.__vnode.ctx.exposed.setZIndex(0)
+        })
+      })
   
   </script>
   

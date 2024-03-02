@@ -1,5 +1,5 @@
 <template>
-    <div ref="card" class="stack-card _overflow:hidden!" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }"  v-on:touchmove="doPinch" v-touch:hold="toggleExpand" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:drag="doDrag">
+    <div ref="card" class="stack-card _overflow:hidden!" :style="{ zIndex }" v-touch:swipe :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }">
       <slot v-if="isExpanded" name="content" :toggleExpand="toggleExpand"></slot>
       <slot v-if="!isExpanded" name="placeholder" :toggleExpand="toggleExpand"></slot>
     </div>
@@ -38,7 +38,7 @@
       }
 
       function toggleExpand(e) {
-       if(!isExpanded.value) {
+        if(!isExpanded.value) {
           isExpanded.value = true
           setZIndex(100) 
         } else if(isExpanded.value) isExpanded.value = false
