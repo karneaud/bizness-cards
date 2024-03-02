@@ -1,10 +1,9 @@
 <template>
-    <div ref="card" class="stack-card" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:drag="doDrag" v-touch:touchmove="doPinch">
-      <slot v-if="isExpanded" name="content"></slot>
+    <div ref="card" class="stack-card _overflow:hidden!" :style="{ zIndex }" v-on:swiping="incrementZIndex" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }"  v-on:touchmove="doPinch" v-touch:hold="toggleExpand" v-touch:swipe.right="doSwipe" v-touch:swipe.top="toggleExpand" v-on:touchstart="setPos" v-on:touchend="stopDrag" v-touch:drag="doDrag">
+      <slot v-if="isExpanded" name="content" :toggleExpand="toggleExpand"></slot>
       <slot v-if="!isExpanded" name="placeholder" :toggleExpand="toggleExpand"></slot>
     </div>
   </template>
-  
   <script setup>
   import { ref,  onMounted } from 'vue';
 
@@ -19,7 +18,7 @@
       }),
       emit = defineEmits(['swiping']);
 
-      let position = {}, boundRect = {}, pinch = {};
+      let position = {}, boundRect = {}, pinch = {}, pinching = false;
 
       onMounted(() => {
         boundRect = card.value.parentElement.getBoundingClientRect()
@@ -39,13 +38,10 @@
       }
 
       function toggleExpand(e) {
-
-        if(!isExpanded.value) {
+       if(!isExpanded.value) {
           isExpanded.value = true
-          setZIndex(100)
-        }
-
-        if(e.type == 'swipe.top' && isExpanded.value) isExpanded.value = false
+          setZIndex(100) 
+        } else if(isExpanded.value) isExpanded.value = false
       }
 
       function doSwipe(e) {
@@ -54,15 +50,17 @@
       }
 
       function doDrag(e) {
-        if(isExpanded.value || e.touches.length > 1) return 
-        
-        let { clientX, clientY } = e.touches[0]
-        position.x = clientX - card.value.getBoundingClientRect().x
-        if(position.x < boundRect.x ) position.x  = boundRect.x
-        if(position.x > boundRect.right/3 ) position.x = boundRect.right/3
+        if(!isExpanded.value && e.touches.length == 1) {
+          let { clientX, clientY } = e.touches[0]
+          position.x = clientX - card.value.getBoundingClientRect().x
+          if(position.x < boundRect.x ) position.x  = boundRect.x
+          if(position.x > boundRect.right/3 ) position.x = boundRect.right/3
 
-        card.value.style.transform = `translate(${position.x }px, 0px)`
-        if(!isDragging.value) isDragging.value = true
+          card.value.style.transform = `translate(${position.x }px, 0px)`
+          if(!isDragging.value) isDragging.value = true
+        }
+
+       
       }
 
       function stopDrag() {
@@ -74,24 +72,29 @@
       }
 
       function doPinch(e) {
+       
         const MIN_PIXES_DISTANCE = 25;
-
         // If is not using 2 fingers
         const touches = e.changedTouches;
         if (touches.length !== 2) {
-          pinch = {};
           return;
         } 
+        
         
         let { clientY: pinch1 } = touches[0], { clientY: pinch2 } = touches[1]
         if (
         (pinch.y1 - pinch1 < -MIN_PIXES_DISTANCE &&
-          pinch.y2 - pinch2 >= MIN_PIXES_DISTANCE) ||
-        (pinch.y2 - pinch2 < -MIN_PIXES_DISTANCE &&
-          pinch.y1 - pinch1 >= MIN_PIXES_DISTANCE)
-        ) {
-          toggleExpand(e)
-        }
+        pinch.y2 - pinch2 >= MIN_PIXES_DISTANCE && !isExpanded.value && !pinching)
+          ) {
+              pinching = Date.now()
+              toggleExpand(e);
+          } else if (
+              (pinch.y2 - pinch2 < -MIN_PIXES_DISTANCE &&
+              pinch.y1 - pinch1 >= MIN_PIXES_DISTANCE && isExpanded.value && ((Date.now() - pinching) >= 1000 ))
+          ) {
+            pinching = false
+            toggleExpand(e);
+          }
     }
 
       function setZIndex(index) {

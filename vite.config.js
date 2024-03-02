@@ -17,6 +17,11 @@ export default defineConfig({
         includeAssets: ['favicon.svg'],
         manifest: {
           name: 'BiznzCard',
+          scope: "./",
+          start_url: "./",
+          display:"fullscreen",
+          display_override:["fullscreen"],
+          orientation:"any",
           short_name: 'BiznzCard',
           description: 'Digital business cards',
           theme_color: '#ffffff',

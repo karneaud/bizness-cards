@@ -10,6 +10,7 @@
       const stack = ref(), cards = useSlots(), stackedCards = ref([]) ;
     
       function handleSwipeEvent({ card }) {
+        
         card.addEventListener('transitionend', handleTransitionEnd, { once: true })
         
         for(var i = 0; i < stack.value.children.length; i++)  {

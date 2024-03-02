@@ -1,5 +1,5 @@
 <template>
-  <section :class="`theme-card ${ card.theme || 'default' }`">
+  <section :class="`theme-card ${ card.theme || 'default' }`" ref="vcard">
    <article class="name"><span class="first-name">{{ card.firstName }}</span><span class="last-name">{{ card.lastName }}</span></article>
     <article class="company"><span class="text">{{ card.organization }}</span></article>
     <article class="job"><span class="text">{{ card.job }}</span></article>
@@ -62,13 +62,12 @@
   @import "../themes/default"
 </style>
 <script setup>
-    import router from '../routes'
-    import { useMainStore } from '../store'
-    import { storeToRefs } from 'pinia'
-    import createVCard from '../lib/vcard.js'
+     import createVCard from '../lib/vcard.js'
     import VueQrcode from 'vue-qrcode'
 
-    const store = useMainStore(), { getBusiness: { value: getBusinessById } } = storeToRefs(store), id = router.currentRoute.value.params.id, card = getBusinessById( id ), color = { dark: '#000000ff', light: '#ffffffff' } , vCard = createVCard(card), 
+    const props = defineProps({
+      card: null
+    }), color = { dark: '#000000ff', light: '#ffffffff' } ,  
     mediaName = (url) => {
       let m = url.match(/^(?:https?:\/\/)?(?:www\.)?(?!www\.)(([^\/]+)\.[a-z]+)/)
       return m[2]
@@ -78,5 +77,5 @@
     }, show = (code) => {
         document.querySelector(`.${code}`).classList.toggle('show')
         return false;
-    }
+    }, vCard = createVCard(props.card)
 </script>

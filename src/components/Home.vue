@@ -1,27 +1,24 @@
 <script setup>
   import { useMainStore } from '../store'
-
-  const store = useMainStore(), businesses = store.businesses
-
+  const store = useMainStore(), businesses = store.businesses, cards = store.cards
 </script>
     <template> 
             <section class="_width:100%! _height:100%! _overflow:hidden _flex-direction:column _display:flex _align-contents:center _justify-content:center ">
-              <article class="_clearfix _height:60vh! _flex-direction:column _display:flex _align-contents:center _justify-content:center">
+              <article class="_clearfix _height:100%! _overflow:hidden _flex-direction:column _display:flex _align-contents:center _justify-content:center">
                 <h2>Business Cards</h2>
-                <card-stack class="_clearfix _height:60vh!">
+                <card-stack>
                   <template v-slot="slotProps">
-                    <stack-card @swiping="slotProps.handleSwipeEvent" v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="i" :id="`card-$-${index}`">
+                    <stack-card @swiping="slotProps.handleSwipeEvent" v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="`${++index}`" :id="`card-$-${index}`">
                       <template #content>
-                        <card :props="{ card }" v-slot="slotProps" />
+                        <card :card="card" v-slot="slotProps" />
                       </template>
                       <template #placeholder>
-                        {{ card.company }}
+                        <p><small>{{ card.organization }}</small></p>
                       </template>
                     </stack-card>
-
-                    <stack-card @swiping="slotProps.handleSwipeEvent" ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2}`">
-                      <template #content>
-                        <business />
+                    <stack-card @swiping="slotProps.handleSwipeEvent" ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2 }`">
+                      <template #content="slotProps">
+                        <business v-slot="slotProps" @submitted="slotProps.toggleExpand" />
                       </template>
                       <template #placeholder="slotProps">
                         <h2>Create Card</h2>
@@ -49,6 +46,4 @@
         width: 100%;
         padding: 24px;
       }
-
-
     </style> 
