@@ -201,6 +201,12 @@ export default defineConfig({
                         },
                         right: {
                             width: 0
+                        },
+                        radius: 0
+                    },
+                    prepend: {
+                        append: {
+                            background: 'transparent'
                         }
                     },
                     box: {
@@ -791,7 +797,8 @@ export default defineConfig({
                         },
                         right: {
                             width: 0
-                        }
+                        },
+                        radius: 0
                     },
                     background: {
                         color: 'transparent !important'
