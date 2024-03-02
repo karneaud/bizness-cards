@@ -26,6 +26,10 @@
   white-space: nowrap;
 }
 
+._overflow-y\:auto {
+  overflow-y: auto;
+}
+
 ._max-width\:90\% {
   max-width: 90%;
 }
@@ -91,4 +95,48 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+
+.input input {
+  transition: all .2s ;
+}
+
+form > fieldset .input input {
+   font-size: 75%;
+}
+
+form > fieldset:focus-within .input input {
+   font-size: 125%;
+   color: var(--color-black);
+   border-bottom-color: var(--color-black);
+}
+
+.input-prepend, .input-append {
+     background-color: transparent !important;
+}
+
+.input-append .button.-link, .input-prepend .button.-link {
+ color: var(--color-black) !important;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+   input, .input {
+       background-color: transparent !important;
+   }
+
+   form > fieldset:focus-within .input input {
+     font-size: 125%;
+     color: var(--color-light);
+     border-bottom-color: var(--color-light);
+   }
+
+   .input-prepend .button.-light, .input-append .button.-light {
+     background: none;
+     background-color: transparent;
+     color: var(--color-light) !important;
+   }
+
 }
