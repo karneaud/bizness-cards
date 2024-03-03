@@ -1,16 +1,21 @@
 <template>
     <div ref="stack" class="card-stack">
-      <slot :handleSwipeEvent="handleSwipeEvent"></slot>
+      <slot></slot>
     </div>
   </template>
   
   <script setup>
-  import { ref, useSlots, onMounted } from 'vue';
-  import CardFlick from '../../lib/card-flick.js';
-  
-      const stack = ref(), cards = useSlots(), stackedCards = ref([]) ;
+  import { ref, useSlots, onMounted, onUpdated } from 'vue';
+  import { Stack } from 'swing';
+
+      const stack = ref(), cards = useSlots(), stackedCards = ref([]),  stackOfCards = Stack({
+       // throwOutDistance: () => 400,
+       // minThrowOutDistance: 400,
+       // maxThrowOutDistance: 500,
+        throwOutConfidence: () => 1
+      }) 
     
-      function handleSwipeEvent( card ) {
+      function handleSwipeEvent( ) {
         
         for(var i = 0; i < stack.value.children.length; i++)  {
           let ocard = stack.value.children.item(i)
@@ -19,13 +24,18 @@
 
       }
 
+      onUpdated((e) => {
+        Array.from(stack.value.children).forEach((e) => stackOfCards.getCard(e) || stackOfCards.createCard(e)  )
+      })
+
       onMounted(() => {
-        let cardFlick = new CardFlick(stack.value, stack.value.children, {
-            swipeThreshold: 100,
-            transitionDuration: 300,
-            onSwipeRight: (card) => handleSwipeEvent(card),
-            onHandeFlyOffCard: (card) => card.__vnode.ctx.exposed.setZIndex(0)
-        })
+       
+        Array.from(stack.value.children).forEach((e) => stackOfCards.createCard(e))
+        stackOfCards.on('throwoutend', function (e) {
+          e.target.__vnode.ctx.exposed.setZIndex(-1)
+          handleSwipeEvent()
+          stackOfCards.getCard(e.target).throwIn(0,0)
+        });
       })
   
   </script>

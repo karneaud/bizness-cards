@@ -8,7 +8,7 @@
                 <h2>Business Cards</h2>
                 <card-stack>
                   <template v-slot="slotProps">
-                    <stack-card @swiping="slotProps.handleSwipeEvent" v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="`${++index}`" :id="`card-$-${index}`">
+                    <stack-card v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="`${++index}`" :id="`card-$-${index}`">
                       <template #content>
                         <card :card="card" v-slot="slotProps" />
                       </template>
@@ -16,7 +16,7 @@
                         <p><small>{{ card.organization }}</small></p>
                       </template>
                     </stack-card>
-                    <stack-card @swiping="slotProps.handleSwipeEvent" ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2 }`">
+                    <stack-card ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2 }`">
                       <template #content="slotProps">
                         <business v-slot="slotProps" @submitted="slotProps.toggleExpand" />
                       </template>

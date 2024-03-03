@@ -1,5 +1,5 @@
 <template>
-    <div ref="card" class="stack-card _overflow:hidden!" :style="{ zIndex }" v-touch:swipe :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }">
+    <div ref="card" class="stack-card _overflow:hidden!" :style="{ zIndex }" :class="{ expanded: isExpanded, edit: isEditing, draggable: isDragging }">
       <slot v-if="isExpanded" name="content" :toggleExpand="toggleExpand"></slot>
       <slot v-if="!isExpanded" name="placeholder" :toggleExpand="toggleExpand"></slot>
     </div>
@@ -22,7 +22,7 @@
 
       onMounted(() => {
         boundRect = card.value.parentElement.getBoundingClientRect()
-        zIndex.value = props.zIndex
+        zIndex.value = parseInt(props.zIndex)
       })
 
       function setPos(e) {
@@ -98,11 +98,11 @@
     }
 
       function setZIndex(index) {
-        zIndex.value = index
+        zIndex.value = parseInt(index)
       }
 
       function incrementZIndex() {
-        zIndex.value  += 1
+        zIndex.value  = parseInt(zIndex.value) + 1
       }
 
       function getZIndex() {

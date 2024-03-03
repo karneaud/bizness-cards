@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import inkline from '@inkline/plugin/vite';
 import { VitePWA } from 'vite-plugin-pwa'
+import { viteCommonjs, esbuildCommonjs } from '@originjs/vite-plugin-commonjs'
 
 const inklineConfig = {
     outputDir: 'src/css/variables'
@@ -9,10 +10,17 @@ const inklineConfig = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue(), inkline(inklineConfig), VitePWA({
+  optimizeDeps:{
+    esbuildOptions:{
+      plugins:[
+        esbuildCommonjs(['swing']) 
+      ]
+    }
+  },
+    plugins: [ viteCommonjs(), vue(), inkline(inklineConfig), VitePWA({
         registerType: 'autoUpdate',
         devOptions: {
-          enabled: true
+          enabled: false
         },
         includeAssets: ['favicon.svg'],
         manifest: {
