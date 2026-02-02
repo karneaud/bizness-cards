@@ -10,19 +10,19 @@
                   <template v-slot="slotProps">
                     <stack-card v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="`${++index}`" :id="`card-$-${index}`">
                       <template #content>
-                        <card :card="card" v-slot="slotProps" />
+                        <card :card="card" />
                       </template>
                       <template #placeholder>
                         <p><small>{{ card.organization }}</small></p>
                       </template>
                     </stack-card>
                     <stack-card ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2 }`">
-                      <template #content="slotProps">
-                        <business v-slot="slotProps" @submitted="slotProps.toggleExpand" />
+                      <template #content="{ toggleExpand }">
+                        <business @submitted="toggleExpand" />
                       </template>
-                      <template #placeholder="slotProps">
+                      <template #placeholder="{ toggleExpand }">
                         <h2>Create Card</h2>
-                        <i-button size="lg" outline color="primary" @click="slotProps.toggleExpand" circle><i-icon name="ink-plus"></i-icon></i-button>
+                        <i-button size="lg" outline color="primary" @click="toggleExpand" circle><i-icon name="ink-plus"></i-icon></i-button>
                       </template>
                     </stack-card>
                   </template>
