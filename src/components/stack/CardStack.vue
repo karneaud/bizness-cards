@@ -6,22 +6,18 @@
   
   <script setup>
   import { ref, useSlots, onMounted, onUpdated } from 'vue';
-  import { Stack } from 'swing';
+  import { Stack, Direction } from 'swing';
 
-      const stack = ref(), cards = useSlots(), stackedCards = ref([]),  stackOfCards = Stack({
-       // throwOutDistance: () => 400,
-       // minThrowOutDistance: 400,
-       // maxThrowOutDistance: 500,
-        throwOutConfidence: () => 1
+      const stack = ref(), cards = useSlots(), stackOfCards = Stack({
+       throwOutConfidence: (x,y,e) => + !e.__vnode.ctx.exposed.isExpanded(),
+        allowedDirections: [Direction.RIGHT]
       }) 
     
       function handleSwipeEvent( ) {
-        
         for(var i = 0; i < stack.value.children.length; i++)  {
           let ocard = stack.value.children.item(i)
           ocard.__vnode.ctx.exposed.incrementZIndex()
         };
-
       }
 
       onUpdated((e) => {
@@ -29,7 +25,6 @@
       })
 
       onMounted(() => {
-       
         Array.from(stack.value.children).forEach((e) => stackOfCards.createCard(e))
         stackOfCards.on('throwoutend', function (e) {
           e.target.__vnode.ctx.exposed.setZIndex(-1)
