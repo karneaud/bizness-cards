@@ -7,28 +7,44 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:unit:debug": "vitest run --inspect --pool=forks --maxWorkers=1",
+    "test:e2e": "cypress open",
+    "lint": "eslint . --ext .js,.vue",
     "postinstall": "npm run dev"
   },
   "dependencies": {
-    "@inkline/inkline": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.1",
     "@vueuse/core": "^10.7.2",
-    "oh-vue-icons": "^1.0.0-rc3",
+    "daisyui": "^5.5.19",
+    "hammerjs": "^2.0.8",
     "pinia": "^2.1.7",
+    "qrcode": "^1.5.3",
     "socicon-sass": "^1.0.6",
     "swing": "^4.4.0",
+    "tailwindcss": "^4.2.1",
     "vcards-js-updated": "^2.10.1",
     "vue": "^3.3.11",
     "vue-qrcode": "^2.2.2",
     "vue-router": "^4.2.5",
-    "vue3-touch-events": "^4.1.8"
+    "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@inkline/config": "^1.9.1",
-    "@inkline/plugin": "^1.5.2",
+    "@tailwindcss/postcss": "^4.0.6",
+    "@tailwindcss/vite": "^4.0.6",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
     "@originjs/vite-plugin-commonjs": "^1.0.3",
-    "@vitejs/plugin-vue": "^4.5.2",
+    "@vitest/ui": "^4.0.18",
+    "cypress": "^13.9.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-vue": "^9.21.0",
+    "happy-dom": "^20.5.0",
+    "jsdom": "^28.0.0",
     "sass": "^1.64.0",
     "vite": "^5.0.8",
-    "vite-plugin-pwa": "^0.17.5"
+    "vite-plugin-pwa": "^0.17.5",
+    "vitest": "^4.0.18"
   }
 }
