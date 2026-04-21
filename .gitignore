@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 dev-dist
+
+#OPENCODE
+opencode.json
+AGENTS.md
+docker-compose.yml
+.opencode/*
