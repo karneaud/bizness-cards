@@ -1,0 +1,175 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+/* ---------------------------
+   Card Base
+---------------------------- */
+
+.card {
+  @apply top-px left-px min-h-lvw overflow-hidden;
+  
+  cursor: grab;
+  transition: transform 250ms ease, opacity 250ms ease;
+  will-change: transform;
+}
+
+.card { 
+    pointer-events: none; 
+} 
+
+.card .close-btn {
+  @apply opacity-0;
+}
+
+.card .card-title, .card .card-image {
+  @apply opacity-100;
+  transition-property: height, opacity;
+  transition-duration: 2s, .8s;
+  transition-delay: 1s;
+}
+
+.card .card-body {
+  @apply h-px opacity-0 flex-shrink-1 flex-grow-0 overflow-hidden;
+  transition-property: height, opacity;
+  transition-duration: 1s, .2s;
+  transition-delay: 0s;
+
+}
+
+.card.dragging {
+  cursor: grabbing;
+  transition: none !important;
+}
+
+/* Prevent interaction while dragging */
+.card.dragging * {
+  pointer-events: none;
+}
+
+/* ---------------------------
+   Stack Layout (Bottom → Top)
+---------------------------- */
+
+.stack {
+  display: grid;
+  opacity: 1; 
+}
+
+/* Top card */
+
+.stack-0 {
+  grid-column: 1 / 6;
+  grid-row: 1 / 4;
+
+  transform: translateY(0);
+}
+
+/* Second card (peeks below) */
+
+.stack-1 {
+  grid-column: 1 / 6;
+  grid-row: 1 / 4;
+
+  transform: translateY(16px) ;
+}
+
+/* Third card */
+
+.stack-2 {
+  grid-column: 1 / 6;
+  grid-row: 1 / 4;
+
+  transform: translateY(32px) scale(.96);
+}
+
+/* Deeper cards */
+
+.stack-3,
+.stack-4,
+.stack-5,
+.stack-6 {
+  grid-column: 1 / 6;
+  grid-row: 1 / 4;
+
+  transform: translateY(48px) scale(.94);
+
+  opacity: .7; 
+}
+
+
+/* ---------------------------
+   Swipe Animations
+---------------------------- */
+
+.card.swipe-right {
+  transform: translateX(120vw) rotate(25deg) !important;
+}
+
+.card.swipe-left {
+  transform: translateX(-120vw) rotate(-25deg) !important;
+}
+
+
+/* ---------------------------
+   Reset State
+---------------------------- */
+
+.card.reset {
+  transform: translateX(0) rotate(0deg);
+}
+
+.card.reset.hidden {
+  /* opacity: 0; */
+  transition: none !important;
+}
+
+
+/* ---------------------------
+   Fade In
+---------------------------- */
+
+.card.fade-in {
+  animation: fadeIn 250ms ease forwards;
+}
+
+
+/* ---------------------------
+   Expanded Card
+---------------------------- */
+
+.card.expanded { 
+  @apply fixed top-0 left-0 w-lvw h-dvh rounded-none; 
+  cursor: pointer;
+} 
+
+
+.card.expanded .card-body {
+    @apply h-dvh w-full opacity-100;
+    transition-duration: .5s, 1s;
+    transition-delay: 1s;
+}
+
+.card.expanded .card-title, .card.expanded .card-image {
+  @apply opacity-0 h-px;
+  transition-duration: 1.5s, .8s;
+  transition-delay: 4s, 0s;
+}
+
+.card.expanded * {
+  pointer-events: all;
+}
+
+.card.expanded .close-btn {
+  @apply opacity-100;
+}
+
+
+/* ---------------------------
+   Keyframes
+---------------------------- */
+
+@keyframes fadeIn {
+  to {
+    opacity: 1; 
+  }
+}

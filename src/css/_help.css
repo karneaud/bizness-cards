@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+
+.help-container {
+  @apply bg-base-100 rounded-lg shadow-lg;
+}
+
+.help-section {
+  @apply p-4 bg-base-200 rounded-lg;
+}

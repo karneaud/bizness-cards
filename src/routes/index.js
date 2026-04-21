@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../components/Home.vue'
 //import Profile from './components/Profile.vue'
 import Card from '../components/Card.vue'
-import Business from '../components/Business.vue'
+import Business from '../components/form/Business.vue'
 
 const router = createRouter({
   history: createWebHistory(),

@@ -1,253 +1,263 @@
+import Hammer from "hammerjs"
+
 class CardFlick {
-    // variables
-    #initialX = 0
-    #currentX = 0
-    #activeCard = null
-    #rotation = 4
-    // default threshold
-    #cardThreshold = 100
 
-    // Array of swiped Cards
-    #swipedCards = []
+  #cardContainer
+  #hammerManager = null
+  #cardThreshold = 100
+  #transitionDuration = 250
 
-    // default swipe right callback
-    #onSwipeRight = () => {}
-    // default swipe left callback
-    #onSwipeLeft = () => {}
-    // handle the card after fly off screen
-    #onHandleFlyOffCard = null 
-    // default on swipe callback
-    #onSwipe = () => {}
+  #isSwiping = false
+  #isExpanded = false
 
-    // default transition duration in ms
-    #transitionDuration = 500
+  #onSwipeRight = () => {}
+  #onSwipeLeft = () => {}
+  #onSwipe = () => {}
+  #onHandleFlyOffCard = null
+  #onExpand = () => {}
+  #onCardCollapsed = () => {}
 
-    // default notAligned - the cards are angled and not aligned
-    #notAligned = true
+  constructor(cardContainer, options = {}) {
 
-    // is the card dragged left or right
-    #isDraggedLeft = false
+    if (!cardContainer) {
+      throw new Error("cardContainer is required")
+    }
+
+    this.#cardContainer = cardContainer
+
+    if (options.cardThreshold) this.#cardThreshold = options.cardThreshold
+    if (options.transitionDuration) this.#transitionDuration = options.transitionDuration
+
+    if (options.onSwipeRight) this.#onSwipeRight = options.onSwipeRight
+    if (options.onSwipeLeft) this.#onSwipeLeft = options.onSwipeLeft
+    if (options.onSwipe) this.#onSwipe = options.onSwipe
+    if (options.onHandleFlyOffCard) this.#onHandleFlyOffCard = options.onHandleFlyOffCard
+    if (options.onExpand) this.#onExpand = options.onExpand
+    if (options.onCardCollapsed) this.#onCardCollapsed = options.onCardCollapsed
+
+    this.#initHammer()
+  }
+
+  #getTopCard() {
+    const cards = this.#cardContainer.querySelectorAll(".card")
+    return cards.length ? cards[0] : null
+  }
+
+  #isCardExpanded(card) {
+    return card && card.classList.contains('expanded')
+  }
+
+  #initHammer() {
+
+    this.#hammerManager = new Hammer.Manager(this.#cardContainer, {
+      recognizers: [
+        [Hammer.Tap, { event: "tap", pointers: 1 }],
+        [Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL }],
+        [Hammer.Pan, { direction: Hammer.DIRECTION_HORIZONTAL, threshold: 5 }]
+      ]
+    })
+
+    let currentCard = null
+    let startX = 0
+    let isDragging = false
+
+    this.#hammerManager.on("tap", () => {
+
+      if (this.#isSwiping) return
+
+      currentCard = this.#getTopCard()
+      if (!currentCard) return
+
+      if (this.#isCardExpanded(currentCard)) return
+
+      this.#expandCard(currentCard)
+
+    })
+
+    this.#hammerManager.on("panstart", (e) => {
+
+      if (this.#isSwiping) return
+
+      currentCard = this.#getTopCard()
+      if (!currentCard) return
+
+      if (this.#isCardExpanded(currentCard)) return
+
+      isDragging = true
+      startX = e.center.x
+
+      currentCard.classList.add("dragging")
+
+    })
+
+    this.#hammerManager.on("panmove", (e) => {
+
+      if (!isDragging || !currentCard) return
+
+      if (this.#isCardExpanded(currentCard)) return
+
+      const diffX = e.center.x - startX
+      const rotate = diffX * 0.1
+
+      currentCard.style.transform =
+        `translateX(${diffX}px) rotate(${rotate}deg)`
+
+    })
+
+    this.#hammerManager.on("panend", (e) => {
+
+      if (!currentCard) return
+
+      if (this.#isCardExpanded(currentCard)) return
+
+      isDragging = false
+      currentCard.classList.remove("dragging")
+
+      const diffX = e.deltaX
+      const velocity = e.velocityX
+      const screenWidth = window.innerWidth
+      const swipeThreshold = Math.max(this.#cardThreshold, screenWidth * 0.15)
+
+      if (Math.abs(diffX) > swipeThreshold || Math.abs(velocity) > 0.3) {
+
+        this.#swipeCard(currentCard, diffX > 0 ? "right" : "left")
+
+      } else {
+
+        currentCard.style.transition = "transform 250ms ease"
+        currentCard.style.transform = "translateX(0) rotate(0)"
+
+        setTimeout(() => {
+          if(currentCard) currentCard.style.transition = ""
+        }, 250)
+
+      }
+
+      currentCard = null
+
+    })
+
+    this.#hammerManager.on("swipe", (e) => {
+
+      if (this.#isSwiping) return
+
+      const card = this.#getTopCard()
+      if (!card) return
+
+      if (this.#isCardExpanded(card)) return
+
+      const direction =
+        e.direction === Hammer.DIRECTION_RIGHT ? "right" : "left"
+
+      this.#swipeCard(card, direction)
+
+    })
+
+  }
+
+  #swipeCard(card, direction) {
+
+    if (this.#isSwiping) return
+    if (this.#isCardExpanded(card)) return
     
-    #cards = []
-    /**
-     * Creates a new CardFlick instance and adds event listeners to each card element.
-     *
-     * @param {HTMLElement} cardContainer - The card flick container element
-     * @param {Array<HTMLElement> | NodeList} cards - Array of card elements
-     * @param {Object} options - Options for the card flick instance (optional)
-     *  @param {Number} options.cardThreshold - The threshold in pixels for the card to be considered swiped (optional)
-     * @param {Function} options.onSwipeRight - The callback function to be called when a card is swiped right (optional)
-     * @param {Function} options.onSwipeLeft - The callback function to be called when a card is swiped left (optional)
-     * @param {Function} options.onSwipe - The callback function to be called when a card is swiped (optional)
-     * @param {Number} options.transitionDuration - The duration of the transition in ms (optional)
-     * @param {Boolean} options.notAligned - The cards are angled and not aligned. You can see the card behind (optional)
-     * @throws {Error} - If cardContainer is not an HTMLElement
-     * @throws {Error} - If cards is not an array
-     * @throws {Error} - If cards array is empty
-     * @throws {Error} - If cardThreshold is not a number
-     * @throws {Error} - If onSwipeRight is not a function
-     * @throws {Error} - If onSwipeLeft is not a function
-     * @throws {Error} - If transitionDuration is not a number
-     * @throws {Error} - If transitionDuration is not greater than 0 and less than 10000
-     * @returns {CardFlick} - A new CardFlick instance
-     * @example
-     * const cardContainer = document.querySelector('.card-container')
-     * const cards = document.querySelectorAll('.card')
-     * const cardFlick = new CardFlick(cardContainer, cards)
-     *
-     */
-    constructor(cardContainer, cards, options) {
-        // console.log(options)
-        // check that a card-flick-container element exists
-        if (!cardContainer) throw new Error('cardContainer is required')
+    this.#isSwiping = true
 
-        // check that cards is an array and if it has any elements
-        if (!cards) throw new Error('No cards found')
+    card.classList.add(direction === "right" ? "swipe-right" : "swipe-left")
 
-        // check that cards is a node list
-       // if (!(cards instanceof NodeList)) throw new Error('Cards must be a NodeList')
-        if (cards.length === 0) throw new Error('Cards array is empty')
+    if (direction === "right") this.#onSwipeRight(card)
+    else this.#onSwipeLeft(card)
 
-        // convert the node list to an array
-        this.#cards = Array.from(cards)
+    this.#onSwipe(card)
 
-        // add position relative to the card container
-        cardContainer.style.position = 'relative'
-        let zIndex = 1
+    setTimeout(() => {
 
-        // add event listeners to each card
-        this.#cards.forEach((card) => {
-            // add all the styles to the card
-            card.style.position = 'absolute'
-            card.style.zIndex = zIndex * 1000
-            card.style.cursor = 'grab'
-            zIndex++
+      card.classList.remove("swipe-right", "swipe-left")
+      card.style.transform = ""
 
-            // Prevent the children from being clickable when the card is being dragged
-            /*const children = card.children
-            for (let i = 0; i < children.length; i++) {
-                children[i].style.pointerEvents = 'none'
-            }*/
+      if (this.#onHandleFlyOffCard) {
+        this.#onHandleFlyOffCard(card, direction)
+      }
 
-            // add a unique id attribute to the card
-            let id = Math.random() * 10000000000000000
-            id = id.toString(36).replace('.', '')
-            card.setAttribute('data-cf-id', id)
+      this.#isSwiping = false
 
-            // add a transform to the card if notAligned is true (default)
-            if (this.#notAligned) {
-                // add a transform to the card
-                // Random number between -10 and 10
-                card.style.transform = `rotate(${this.#rotation}deg)`
-            }
+    }, this.#transitionDuration)
 
-            // add event listeners to the card
-            card.addEventListener('mousedown', this.#handleCardDragStart)
-            card.addEventListener('mousemove', this.#handleCardDragMove)
-            card.addEventListener('mouseup', this.#handleCardDragEnd)
+  }
+  
+    
+    #expandCard(card) {
+        if (this.#isCardExpanded(card)) return
 
-            card.addEventListener('touchstart', this.#handleCardDragStart)
-            card.addEventListener('touchmove', this.#handleCardDragMove)
-            card.addEventListener('touchend', this.#handleCardDragEnd)
+        // First: Record initial position
+        const firstRect = card.getBoundingClientRect()
+
+        this.#isExpanded = true
+
+        // Last: Add expanded class (position changes to fixed)
+        card.classList.add('expanded')
+
+        // Invert: Calculate the difference
+        const lastRect = card.getBoundingClientRect()
+        const deltaX = firstRect.left - lastRect.left
+        const deltaY = firstRect.top - lastRect.top
+        const scaleX = firstRect.width / lastRect.width
+        const scaleY = firstRect.height / lastRect.height
+        // Apply inverse transform
+        card.animate([
+            { transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})` },
+            { transform: 'translate(0, 0) scale(1)' }
+        ], {
+          duration: 300, 
+            easing: 'ease-in-out'
         })
 
-        // check if options is an object
-        if (options && typeof options === 'object') {
-            // check if cardThreshold is a number
-            if (options.cardThreshold && typeof options.cardThreshold !== 'number') {
-                throw new Error('cardThreshold must be a number')
-            } else if (options.cardThreshold) {
-                this.#cardThreshold = options.cardThreshold
-            }
-
-            // check if onSwipeRight is a function
-            if (options.onSwipeRight && typeof options.onSwipeRight !== 'function')
-                throw new Error('onSwipeRight must be a function')
-            if (options.onSwipeRight) this.#onSwipeRight = options.onSwipeRight
-
-            if (options.onSwipe && typeof options.onSwipe !== 'function') {
-                throw new Error('onSwipe must be a function')
-            }
-
-            if (options.onSwipe) this.#onSwipe = options.onSwipe
-
-            // check if onSwipeLeft is a function
-            if (options.onSwipeLeft && typeof options.onSwipeLeft !== 'function') {
-                throw new Error('onSwipeLeft must be a function')
-            }
-            if (options.onSwipeLeft) this.#onSwipeLeft = options.onSwipeLeft
-
-            // check if transitionDuration is a number and if it is greater than 0 and less than 10000
-            if (options.transitionDuration && typeof options.transitionDuration !== 'number')
-                throw new Error('transitionDuration must be a number')
-
-            if (options.transitionDuration < 0 || options.transitionDuration > 10000)
-                throw new Error('transitionDuration must be greater than 0 and less than 10000')
-
-            if (options.transitionDuration) this.#transitionDuration = options.transitionDuration
-
-            // check if notAligned is a boolean
-            if (options.notAligned && typeof options.notAligned !== 'boolean')
-                throw new Error('notAligned must be a boolean')
-
-            if (options.notAligned === false) this.#notAligned = false
-
-            if (options.onHandleFlyOffCard) this.#onHandleFlyOffCard = options.onHandleFlyOffCard
-        }
+        // Call expand callback
+        this.#onExpand(card)
     }
 
-    #handleCardDragStart = (e) => {
-        if(e.target == e.currentTarget ) { e.preventDefault() 
-        
+    collapseCard(card) {
+        if (!this.#isCardExpanded(card)) return
 
-            // get the initial position of the card
-            if (e.type === 'touchstart') {
-                this.#initialX = e.touches[0].clientX
-            } else {
-                this.#initialX = e.clientX
-                // set the cursor to grabbing
-                e.currentTarget.style.cursor = 'grabbing'
-            }
+        // First: Record current (expanded) position
+        const firstRect = card.getBoundingClientRect()
 
-            // get the current card being dragged
-            this.#activeCard = e.currentTarget
-        }
+        // Remove expanded class (position will change back to absolute)
+        card.classList.remove('expanded')
+
+        // Last: Get the final position after class removal
+        const lastRect = card.getBoundingClientRect()
+
+        // Invert: Calculate the difference
+        const deltaX = firstRect.left - lastRect.left
+        const deltaY = firstRect.top - lastRect.top
+        const scaleX = firstRect.width / lastRect.width
+        const scaleY = firstRect.height / lastRect.height
+
+        // Play: Animate from current state to final state
+        card.animate([
+            { transform: `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})` },
+            { transform: 'translate(0, 0) scale(1)' }
+        ], {
+          duration: 300,
+            easing: 'ease-in-out'
+        })
+
+        // Reset state after animation
+        setTimeout(() => {
+            this.#isExpanded = false
+            this.#onCardCollapsed(card)
+        }, 300)
     }
 
-    #handleCardDragMove = (e) => {
-        // if there is no active card, return
-        if (!this.#activeCard || e.target !== this.#activeCard) return
-        // if (this.#swipedCards.includes(this.#activeCard)) return
+  destroy() {
 
-        // get the current position of the card
-        if (e.type === 'touchmove') {
-            this.#currentX = e.touches[0].clientX
-        } else {
-            this.#currentX = e.clientX
-        }
-
-        // calculate the distance between the initial and current position of the card
-        const diffX = this.#currentX - this.#initialX
-
-        // if the card has been dragged past the threshold
-        if (Math.abs(diffX) > this.#cardThreshold && this.#cards.length > 1 ) {
-            this.#activeCard.style.transform = `translateX(${diffX * 100}px)  rotate(${
-                diffX * 10
-            }deg)`
-
-            this.#activeCard.style.transition = `transform 1.3s ease-in-out`
-            // this.#activeCard.style.opacity = '0'
-
-            // keep track of the cards that have been swiped
-            this.#swipedCards.push(this.#activeCard)
-
-            // add event listener to the card to detect when the animation is finished
-            this.#activeCard.addEventListener('transitionend', this.#handleCardFlyOff)
-
-            // reset the cursor to grab
-            this.#activeCard.style.cursor = 'grab'
-
-            if (diffX > 0) {
-                this.#onSwipeRight(this.#activeCard)
-            } else {
-                this.#onSwipeLeft(this.#activeCard)
-            }
-
-            this.#onSwipe(this.#activeCard)
-
-            return
-        }
-
-        // update the position of the card
-        const card = e.target
-        card.style.transform = `translateX(${diffX}px) rotate(${this.#rotation / 5}deg)`
-        card.style.transition = 'none'
+    if (this.#hammerManager) {
+      this.#hammerManager.destroy()
+      this.#hammerManager = null
     }
 
-    #handleCardDragEnd = (e) => {
-        if (!this.#activeCard) return
+  }
 
-       // if (this.#swipedCards.includes(this.#activeCard)) return
-
-        // reset the cursor to grab
-        this.#activeCard.style.cursor = 'grab'
-
-        // return the card to its original position
-        this.#activeCard.style.transform = 'none'
-        this.#activeCard.style.transition = 'transform 0.5s ease'
-
-        // Current card being dragged
-        this.#activeCard = null
-    }
-
-    #handleCardFlyOff = (e) => {
-        if (e.propertyName !== 'transform') return
-
-        // remove the card from the DOM
-        const card = e.target
-
-       if(this.#onHandleFlyOffCard) this.#onHandleFlyOffCard(card)
-    }
 }
 
 export default CardFlick

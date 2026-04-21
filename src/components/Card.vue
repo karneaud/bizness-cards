@@ -1,81 +1,60 @@
-<template>
-  <section :class="`theme-card ${ card.theme || 'default' }`" ref="vcard">
-   <article class="name"><span class="first-name">{{ card.firstName }}</span><span class="last-name">{{ card.lastName }}</span></article>
-    <article class="company"><span class="text">{{ card.organization }}</span></article>
-    <article class="job"><span class="text">{{ card.job }}</span></article>
-    <article class="phone">
-      <span class="heading"><i class=" bx bxs-phone bx-lg"></i><strong>Phone:</strong></span>
-      <a target="_blank" class="link" :href="`tel:${card.phone}`">
-        <i class=" bx bxs-phone bx-sm"></i>
-        <span class="text">{{ card.phone }}</span>
-      </a>
-      <a target="_blank" class="qr-code" @click="show('phone')"> 
-        <i class='bx bx-qr bx-sm' ></i>
-        <vue-qrcode type="image/png"  class="hidden" :value="card.phone" :color="color"></vue-qrcode>
-      </a>
-    </article>
-   <article class="email">
-      <span class="heading"><i class="bx bx-envelope bx-lg"></i><strong>Email:</strong></span>
-      <a target="_blank" class="link" :href="`mailto:${card.email}`">
-        <i class="bx bxs-envelope bx-sm"></i>
-        <span class="text">{{ card.email }}</span>
-      </a>
-      <a class="qr-code" @click="show('email')"> 
-        <i class='bx bx-qr bx-sm' ></i>
-        <vue-qrcode type="image/png"  class="hidden" :value="card.email" :color="color"></vue-qrcode>
-      </a>
-    </article>
-    <article class="website">
-        <span class="heading"><i class="bx bx-globe bx-lg"></i><strong>Website:</strong></span>
-        <a target="_blank" class="link" :href="card.website"><i class=" bx bx-globe bx-sm"></i>
-          <span class="text">{{ card.website }}</span>
-         
-        </a>
-         <a class="qr-code" @click="show('website')"> 
-          <i class='bx bx-qr bx-sm' ></i>
-            <vue-qrcode type="image/png"  class="hidden" :value="card.website" :color="color"></vue-qrcode>
-          </a>
-      </article>
-    <article class="social">
-      <div v-for="(link, index) in card.socialMedia" :key="index" :class="`${mediaName(link)} platform`">
-          <span :class="`heading  social-${ mediaName(link) }`"><i :class="`bx bxl-${ mediaName(link) } bx-sm`"></i><strong>{{ mediaName(link) }}:</strong></span>
-          <a target="_blank" class="link" :href="link">
-            <i :class="` bx bxl-${ mediaName(link) } bx-sm`"></i>
-            <span :class="`text social-${ mediaName(link) }`">@{{ socialHandle(link) }}</span>
-          </a>
-          <a class="qr-code" @click="show(`${mediaName(link)}`)"> 
-            <i class='bx bx-qr bx-sm' ></i>
-            <vue-qrcode type="image/png"  class="hidden" :value="link" :color="color"></vue-qrcode>
-          </a>
-      </div>
-    </article>
-    <article class="vcard">
-      <span class="heading"><i class="bx bx-id-card bx-lg"></i><strong>vCard</strong></span>
-      <a class="qr-code" @click="show('vcard')">
-        <i class="bx bx-id-card bx-sm"></i>
-        <vue-qrcode type="image/png" :value="vCard" :color="color"></vue-qrcode>
-      </a>
-    </article>
-  </section>
-</template>
-<style lang="sass" scoped>
-  @import "../themes/default"
-</style>
 <script setup>
-     import createVCard from '../lib/vcard.js'
-    import VueQrcode from 'vue-qrcode'
+import { ref } from 'vue'
 
-    const props = defineProps({
-      card: null
-    }), color = { dark: '#000000ff', light: '#ffffffff' } ,  
-    mediaName = (url) => {
-      let m = url.match(/^(?:https?:\/\/)?(?:www\.)?(?!www\.)(([^\/]+)\.[a-z]+)/)
-      return m[2]
-    }, socialHandle = (url) => { 
-      let m = url.match(/\/([^\/]+)\/?$/)
-      return m[1]
-    }, show = (code) => {
-        document.querySelector(`.${code}`).classList.toggle('show')
-        return false;
-    }, vCard = createVCard(props.card)
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Card Title'
+  },
+  expanded: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['collapse', 'expand'])
+const cardRef = ref(null)
+
+const handleClose = () => {
+  emit('collapse', cardRef.value)
+}
+
+const handleExpand = () => {
+  if (!props.expanded) {
+    emit('expand', cardRef.value)
+  }
+}
+
 </script>
+
+<template>
+  <div 
+    ref="cardRef" 
+    :class="[
+      'border-base-content flex justify-center items-center card border',
+      { 'expanded': expanded }
+    ]"
+    @click="handleExpand"
+  >
+    <button
+      class="close-btn btn btn-circle absolute top-2 right-2 z-50"
+      @click.stop="handleClose"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="size-[1.2em]">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+      </svg>
+    </button>
+      <div class="avatar card-image flex justify-center align-center mb-2 center">
+      <figure class="w-24 h-24 rounded-full">
+          <img
+            src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+            alt="Shoes"
+            class="rounded-xl" />
+    </figure>
+    </div>
+    <div class="card-title mx-auto mt-2 text-center">{{ title }}</div>
+    <div class="card-body overflow-y-auto overflow-x-hidden">
+      <slot name="card-body">Default card body content</slot>
+    </div>
+  </div>
+</template>

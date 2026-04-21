@@ -1,0 +1,28 @@
+@use "sass:meta";
+@use 'socicon-sass/scss/socicon' as *;
+@import "tailwindcss";
+@plugin "daisyui";
+
+@layer base {
+      
+  .business-card {
+    @apply rounded-lg shadow-xl overflow-hidden;
+  }
+
+  .contact-section {
+    @apply pt-2;
+  }
+
+  .contact-item:hover .icon {
+    @apply bg-primary text-primary-content;
+  }
+
+  .icon {
+    @apply transition-colors duration-200;
+  }
+
+  :deep(.socion) {
+    @apply text-base;
+  }
+
+}

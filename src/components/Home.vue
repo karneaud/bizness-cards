@@ -1,49 +1,103 @@
 <script setup>
-  import { useMainStore } from '../store'
-  const store = useMainStore(), businesses = store.businesses, cards = store.cards
+
+import { ref, onMounted, onBeforeUnmount } from "vue"
+import { useMainStore } from "../store"
+import CardFlick from "../lib/card-flick"
+import Card from "./Card.vue"
+import Form from "./Form.vue"
+import Help from "./Help.vue"
+import Business from "./Business.vue"
+
+const store = useMainStore()
+const cardContainer = ref(null), currentCard = ref(null)
+let cardFlickInstance = null
+const expandedCardId = ref(null)
+
+const componentMap = {
+  Business,
+  Form,
+  Help
+}
+
+const cards = ref([...store.cards, ...[
+  { id: 4000, type: "Form", color: "bg-(--color-mist-300)", title: "Add Business"},
+  { id: 6000, type: "Help", color: "bg-(--color-info)", title: "Help" }
+]])
+
+function rotateCards() {
+
+  const first = cards.value.shift()
+  cards.value.push(first)
+
+}
+
+function onFlyOff() {
+
+  rotateCards()
+
+}
+
+function onCollapse(card) {
+  expandedCardId.value = null
+  cardFlickInstance.collapseCard(card)
+}
+
+function onExpand(card) {
+  expandedCardId.value = card.id
+}
+
+onMounted(() => {
+
+  cardFlickInstance = new CardFlick(cardContainer.value, {
+
+    cardThreshold: 100,
+    transitionDuration: 250,
+    onHandleFlyOffCard: onFlyOff
+  })
+
+})
+
+onBeforeUnmount(() => {
+
+  if (cardFlickInstance) {
+    cardFlickInstance.destroy()
+  }
+
+})
+
 </script>
-    <template> 
-            <section class="_width:100%! _height:100%! _overflow:hidden _flex-direction:column _display:flex _align-contents:center _justify-content:center ">
-              <article class="_clearfix _height:100%! _overflow:hidden _flex-direction:column _display:flex _align-contents:center _justify-content:center">
-                <h2>Business Cards</h2>
-                <card-stack>
-                  <template v-slot="slotProps">
-                    <stack-card v-for="(card,index) in businesses" ref="stackedCards" :key="index"  :zIndex="`${++index}`" :id="`card-$-${index}`">
-                      <template #content>
-                        <card :card="card" />
-                      </template>
-                      <template #placeholder>
-                        <p><small>{{ card.organization }}</small></p>
-                      </template>
-                    </stack-card>
-                    <stack-card ref="stackedCards" :zIndex="`${businesses.length > 0 ? 0 : 2 }`">
-                      <template #content="{ toggleExpand }">
-                        <business @submitted="toggleExpand" />
-                      </template>
-                      <template #placeholder="{ toggleExpand }">
-                        <h2>Create Card</h2>
-                        <i-button size="lg" outline color="primary" @click="toggleExpand" circle><i-icon name="ink-plus"></i-icon></i-button>
-                      </template>
-                    </stack-card>
-                  </template>
-                </card-stack>
-              </article>
-            </section>
-    </template>
-    <style lang="css" scoped>
-      button#create-button {
-        display: flex;
-        margin: 0 auto;
-        padding: 20%;
-      }
 
-      .layout-content, .layout-footer {
-        padding: 8px;
-      }
 
-      #app > main > section {
-        height: 100%;
-        width: 100%;
-        padding: 24px;
-      }
-    </style> 
+<template>
+
+<section class="page flex justify-center items-center w-full h-full overflow-hidden">
+
+  <article ref="cardContainer" class="stack stack-bottom aspect-[2/3] m-4">
+
+    <Card
+      v-for="(card,index) in cards"
+      :key="card.id"
+      :id="`card-${index}`"
+      :class="[
+        'card',
+        `stack-${Math.min(index,6)}`,
+        card.color
+      ]"
+      :title="card.title"
+      :expanded="expandedCardId === card.id"
+      @collapse="onCollapse"
+      @expand="onExpand"
+    >
+      <template #card-body>
+        <component :is="componentMap[card.type]" :card="card"
+        />
+      </template>
+    </Card>
+   
+
+
+  </article>
+
+</section>
+
+</template>
