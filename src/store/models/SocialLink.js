@@ -6,6 +6,92 @@ import * as yup from 'yup';
  */
 export class SocialLink extends Link {
   /**
+   * Static configuration for all supported platforms
+   * Single source of truth for platform data
+   */
+  static PLATFORM_CONFIG = {
+    facebook: {
+      pattern: /facebook\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://facebook.com/',
+      iconClass: 'socicon-facebook',
+      label: 'Facebook'
+    },
+    twitter: {
+      pattern: /(?:twitter\.com|x\.com)\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://twitter.com/',
+      iconClass: 'socicon-twitter',
+      label: 'Twitter'
+    },
+    linkedin: {
+      pattern: /linkedin\.com\/in\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://linkedin.com/in/',
+      iconClass: 'socicon-linkedin',
+      label: 'LinkedIn'
+    },
+    instagram: {
+      pattern: /instagram\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://instagram.com/',
+      iconClass: 'socicon-instagram',
+      label: 'Instagram'
+    },
+    youtube: {
+      pattern: /youtube\.com\/(?:@|channel\/)(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://youtube.com/',
+      iconClass: 'socicon-youtube',
+      label: 'YouTube'
+    },
+    github: {
+      pattern: /github\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://github.com/',
+      iconClass: 'socicon-github',
+      label: 'GitHub'
+    },
+    dribbble: {
+      pattern: /dribbble\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://dribbble.com/',
+      iconClass: 'socicon-dribbble',
+      label: 'Dribbble'
+    },
+    skype: {
+      pattern: /skype:(.+?)(?:\?|$)/,
+      urlBase: 'skype:',
+      iconClass: 'socicon-skype',
+      label: 'Skype'
+    },
+    whatsapp: {
+      pattern: /whatsapp\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://whatsapp.com/',
+      iconClass: 'socicon-whatsapp',
+      label: 'WhatsApp'
+    },
+    soundcloud: {
+      pattern: /soundcloud\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://soundcloud.com/',
+      iconClass: 'socicon-soundcloud',
+      label: 'SoundCloud'
+    },
+    vimeo: {
+      pattern: /vimeo\.com\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://vimeo.com/',
+      iconClass: 'socicon-vimeo',
+      label: 'Vimeo'
+    },
+    twitch: {
+      pattern: /twitch\.tv\/(.+?)(?:\?|\/|$)/,
+      urlBase: 'https://twitch.tv/',
+      iconClass: 'socicon-twitch',
+      label: 'Twitch'
+    }
+  };
+
+  /**
+   * Array of supported platform names
+   */
+  static getSupportedPlatforms() {
+    return Object.keys(SocialLink.PLATFORM_CONFIG);
+  }
+
+  /**
    * Creates a new SocialLink instance
    * @param {string} value - The social media URL/handle
    * @param {string} platform - The social media platform (e.g., 'facebook', 'twitter', 'linkedin')
@@ -13,6 +99,78 @@ export class SocialLink extends Link {
   constructor(value = '', platform = '') {
     super(value, 'social');
     this.platform = platform;
+  }
+
+  /**
+   * Detects platform from a URL
+   * @param {string} url - The URL to check
+   * @returns {string|null} - Platform name or null if not detected
+   */
+  static detectPlatform(url) {
+    if (!url) return null;
+    for (const [platform, config] of Object.entries(SocialLink.PLATFORM_CONFIG)) {
+      if (config.pattern.test(url)) {
+        return platform;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Gets platform configuration
+   * @param {string} platform - The platform name
+   * @returns {Object|null} - Platform config or null
+   */
+  static getPlatformConfig(platform) {
+    return SocialLink.PLATFORM_CONFIG[platform] || null;
+  }
+
+  /**
+   * Gets the label for a platform
+   * @param {string} platform - The platform name
+   * @returns {string} - Platform label
+   */
+  static getPlatformLabel(platform) {
+    const config = SocialLink.getPlatformConfig(platform);
+    return config ? config.label : platform.charAt(0).toUpperCase() + platform.slice(1);
+  }
+
+  /**
+   * Extracts handle from URL for a given platform
+   * @param {string} url - The URL to extract from
+   * @param {string} targetPlatform - The platform to use (defaults to this.platform)
+   * @returns {string|null} - The extracted handle or null
+   */
+  extractHandle(url = null, targetPlatform = null) {
+    const platform = targetPlatform || this.platform;
+    const targetUrl = url || this.value;
+    if (!targetUrl || !platform) return null;
+    const config = SocialLink.getPlatformConfig(platform);
+    if (!config) return null;
+    const match = targetUrl.match(config.pattern);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Builds full URL from handle for the current platform
+   * @param {string} handle - The handle/username
+   * @returns {string} - The full URL
+   */
+  buildUrl(handle) {
+    if (!handle) return '';
+    const config = SocialLink.getPlatformConfig(this.platform);
+    if (!config) return handle;
+    return config.urlBase + handle;
+  }
+
+  /**
+   * Gets display handle (without @ prefix)
+   * @returns {string} - The handle or full URL if not parseable
+   */
+  getDisplayHandle() {
+    const handle = this.extractHandle();
+    if (handle) return handle;
+    return this.value;
   }
 
   /**
@@ -26,12 +184,7 @@ export class SocialLink extends Link {
       type: yup.string().oneOf(['social']).required(),
       platform: yup.string()
         .required('Social platform is required')
-        .oneOf([
-          'facebook', 'twitter', 'linkedin', 'instagram', 'youtube',
-          'github', 'pinterest', 'google', 'tumblr', 'reddit',
-          'flickr', 'dribbble', 'skype', 'whatsapp', 'snapchat',
-          'medium', 'soundcloud', 'vimeo', 'twitch', 'discord'
-        ], 'Invalid social platform')
+        .oneOf(SocialLink.getSupportedPlatforms(), 'Invalid social platform')
     });
   }
 
@@ -42,7 +195,6 @@ export class SocialLink extends Link {
   async validate() {
     try {
       await SocialLink.getSchema().validate(this);
-      // Additional validation for URL or handle format
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
       const handlePattern = /^[a-zA-Z0-9._-]+$/;
 
@@ -64,7 +216,6 @@ export class SocialLink extends Link {
   validateSync() {
     try {
       SocialLink.getSchema().validateSync(this);
-      // Additional validation for URL or handle format
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
       const handlePattern = /^[a-zA-Z0-9._-]+$/;
 
@@ -84,30 +235,8 @@ export class SocialLink extends Link {
    * @returns {string} - Icon class name
    */
   getIconClass() {
-    const platformIcons = {
-      facebook: 'socicon-facebook',
-      twitter: 'socicon-twitter',
-      linkedin: 'socicon-linkedin',
-      instagram: 'socicon-instagram',
-      youtube: 'socicon-youtube',
-      github: 'socicon-github',
-      pinterest: 'socicon-pinterest',
-      google: 'socicon-google',
-      tumblr: 'socicon-tumblr',
-      reddit: 'socicon-reddit',
-      flickr: 'socicon-flickr',
-      dribbble: 'socicon-dribbble',
-      skype: 'socicon-skype',
-      whatsapp: 'socicon-whatsapp',
-      snapchat: 'socicon-snapchat',
-      medium: 'socicon-medium',
-      soundcloud: 'socicon-soundcloud',
-      vimeo: 'socicon-vimeo',
-      twitch: 'socicon-twitch',
-      discord: 'socicon-discord'
-    };
-
-    return platformIcons[this.platform] || 'socicon-' + this.platform;
+    const config = SocialLink.getPlatformConfig(this.platform);
+    return config ? config.iconClass : 'socicon-' + this.platform;
   }
 
   /**
@@ -116,30 +245,21 @@ export class SocialLink extends Link {
    */
   normalizeUrl() {
     if (!this.value) return '';
-
-    // If it looks like a handle (no protocol/domain), return as is
     if (!this.value.includes('http') && !this.value.includes('.')) {
       return this.value;
     }
-
-    // Add protocol if missing
     if (!this.value.startsWith('http')) {
       return 'https://' + this.value;
     }
-
     return this.value;
   }
-
 
   /**
    * Converts the social link to JSON object using Yup schema
    * @returns {Object} - JSON representation
    */
   toJson() {
-    // Use Yup schema to ensure consistent serialization
     const socialLinkSchema = SocialLink.getSchema();
-    
-    // Prepare the data for serialization
     const preparedData = {
       ...super.toJson(),
       platform: this.platform,
@@ -147,13 +267,10 @@ export class SocialLink extends Link {
       normalizedUrl: this.normalizeUrl()
     };
 
-    // Use Yup's cast method to ensure data conforms to schema
     try {
-      const serializedData = socialLinkSchema.cast(preparedData);
-      return serializedData;
+      return socialLinkSchema.cast(preparedData);
     } catch (error) {
       console.error('Error serializing social link data:', error.message);
-      // Fallback to manual serialization if Yup casting fails
       return {
         ...super.toJson(),
         platform: this.platform,
