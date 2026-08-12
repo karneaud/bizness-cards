@@ -53,7 +53,7 @@ const handleExpand = () => {
     </figure>
     </div>
     <div class="card-title mx-auto mt-2 text-center">{{ title }}</div>
-    <div class="card-body overflow-y-auto overflow-x-hidden">
+    <div class="card-body  flex justify-center align-center mb-2 center overflow-y-auto overflow-x-hidden">
       <slot name="card-body">Default card body content</slot>
     </div>
   </div>
