@@ -25,6 +25,10 @@ const handleExpand = () => {
   }
 }
 
+defineExpose({
+  close: handleClose
+})
+
 </script>
 
 <template>
