@@ -57,8 +57,10 @@ function onPlatformChange(newPlatform) {
   }
 }
 
-function onBlur() {
-  if (props.modelValue) {
+function onBlur(e) {
+  const handle = e.target.value
+  onHandleInput(handle)
+  if (handle) {
     isEditing.value = false
   }
 }
@@ -102,7 +104,6 @@ defineExpose({
             </select>
             <input
               :value="editHandle"
-              @input="onHandleInput($event.target.value)"
               @blur="onBlur"
               type="text"
               class="input validator join-item flex-1"
