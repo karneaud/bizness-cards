@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { generateId } from '../../lib/utils.js';
 
 /**
  * Base Model class containing common methods for all models
@@ -81,7 +82,7 @@ export class Model {
    * @returns {string} - Unique identifier
    */
   generateId() {
-    return this.constructor.name.toLowerCase() + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return generateId(this.constructor.name.toLowerCase());
   }
 
   /**

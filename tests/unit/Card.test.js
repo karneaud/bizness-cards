@@ -11,6 +11,7 @@ describe('Card', () => {
       const card = new Card();
       expect(card).toBeInstanceOf(Card);
       expect(card.id).toBeDefined();
+      expect(card.userId).toBeDefined();
       expect(card.logo).toBe('');
       expect(card.organization).toBe('');
       expect(card.name).toBe('');
@@ -24,6 +25,7 @@ describe('Card', () => {
     it('should create a new Card instance with provided values', () => {
       const card = new Card({
         id: 'test-id',
+        userId: 'user-123',
         logo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
         organization: 'Test Org',
         name: 'John Doe',
@@ -35,6 +37,7 @@ describe('Card', () => {
         address: '123 Main St'
       });
       expect(card.id).toBe('test-id');
+      expect(card.userId).toBe('user-123');
       expect(card.logo).toContain('base64');
       expect(card.organization).toBe('Test Org');
       expect(card.name).toBe('John Doe');
@@ -289,6 +292,7 @@ describe('Card', () => {
     it('should convert card to JSON', () => {
       const card = new Card({
         id: 'test-id',
+        userId: 'user-123',
         organization: 'Test Org',
         name: 'John Doe',
         emails: [new Email('test@example.com')],
@@ -297,6 +301,7 @@ describe('Card', () => {
       });
       const json = card.toJson();
       expect(json.id).toBe('test-id');
+      expect(json.userId).toBe('user-123');
       expect(json.organization).toBe('Test Org');
       expect(json.name).toBe('John Doe');
       expect(json.emails).toHaveLength(1);
@@ -307,6 +312,7 @@ describe('Card', () => {
     it('should convert card to JSON string', () => {
       const card = new Card({
         id: 'test-id',
+        userId: 'user-456',
         organization: 'Test Org',
         name: 'John Doe',
         emails: [new Email('test@example.com')],
@@ -315,6 +321,7 @@ describe('Card', () => {
       const jsonString = card.toJsonString();
       const parsed = JSON.parse(jsonString);
       expect(parsed.id).toBe('test-id');
+      expect(parsed.userId).toBe('user-456');
       expect(parsed.organization).toBe('Test Org');
       expect(parsed.name).toBe('John Doe');
       expect(parsed.emails).toHaveLength(1);

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useMainStore } from '../../src/store/index.js';
+import { useMainStore } from '../src/store/index.js';
 
 
 describe('Main Store', () => {

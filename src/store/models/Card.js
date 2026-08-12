@@ -3,6 +3,7 @@ import { Email } from './Email.js';
 import { SocialLink } from './SocialLink.js';
 import { Link } from './Link.js';
 import { Model } from './Model.js';
+import { generateId } from '../../lib/utils.js';
 import * as yup from 'yup';
 
 /**
@@ -26,6 +27,7 @@ export class Card extends Model {
    */ 
   constructor({
     id = null,
+    userId = null,
     logo = '',
     organization = '',
     name = '',
@@ -37,7 +39,8 @@ export class Card extends Model {
     address = ''
   } = {}) {
     super();
-    this.id = id || this.generateId();
+    this.id = id || generateId('card');
+    this.userId = userId || generateId('user');
     this.logo = logo;
     this.organization = organization;
     this.name = name;
@@ -56,6 +59,7 @@ export class Card extends Model {
   static getSchema() {
     return yup.object({
       id: yup.string().required('Card ID is required'),
+      userId: yup.string().required('User ID is required'),
       logo: yup.string().nullable(),
       organization: yup.string().required('Organization name is required').min(1, 'Organization name cannot be empty'),
       name: yup.string().required('Name is required').min(1, 'Name cannot be empty'),
@@ -328,6 +332,7 @@ export class Card extends Model {
     // Prepare the data for serialization
     const preparedData = {
       id: this.id,
+      userId: this.userId,
       logo: this.logo,
       organization: this.organization,
       name: this.name,
@@ -362,6 +367,7 @@ export class Card extends Model {
 
     return new Card({
       id: json.id,
+      userId: json.userId,
       logo: json.logo,
       organization: json.organization,
       name: json.name,

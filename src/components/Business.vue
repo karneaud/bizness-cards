@@ -88,7 +88,7 @@
             rel="noopener"
             class="btn btn-sm btn-outline gap-2"
           >
-            <i :class="`socion socion-${getSociconClass(link.platform)}`"></i>
+            <i :class="link.getIconClass()"></i>
             {{ formatPlatform(link.platform) }}
           </a>
         </div>
@@ -100,6 +100,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { SocialLink } from '../store/models/SocialLink.js'
 
 const props = defineProps({
   card: {
@@ -117,29 +118,7 @@ const initials = computed(() => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 })
 
-const formatPlatform = (platform) => {
-  const platforms = {
-    facebook: 'Facebook',
-    twitter: 'Twitter',
-    instagram: 'Instagram',
-    linkedin: 'LinkedIn',
-    youtube: 'YouTube',
-    custom: 'Link'
-  }
-  return platforms[platform] || platform.charAt(0).toUpperCase() + platform.slice(1)
-}
-
-const getSociconClass = (platform) => {
-  const sociconMap = {
-    facebook: 'facebook',
-    twitter: 'twitter',
-    instagram: 'instagram',
-    linkedin: 'linkedin',
-    youtube: 'youtube',
-    custom: 'custom'
-  }
-  return sociconMap[platform] || platform
-}
+const formatPlatform = (platform) => SocialLink.getPlatformLabel(platform)
 </script>
 
 <style type="scss" scoped>

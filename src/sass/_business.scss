@@ -1,4 +1,5 @@
-@use "sass:meta";
+@use "sass:meta"; 
+$socicon-fonts-src: '~socicon-sass/dist/fonts';
 @use 'socicon-sass/scss/socicon' as *;
 @import "tailwindcss";
 @plugin "daisyui";
