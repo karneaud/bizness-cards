@@ -55,7 +55,7 @@ function visitUrl() {
   <div class="url-link-component">
     <!-- Display Mode -->
     <div v-if="!isEditing && modelValue" class="flex items-center">
-      <span class="label-text font-medium mr-2">{{ label }}:</span>
+      <span class="label-text mr-2">{{ label }}:</span>
       <a
         :href="displayUrl"
         target="_blank"

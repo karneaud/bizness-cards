@@ -53,20 +53,20 @@ defineExpose({
 <template>
   <div class="editable-display-component">
     <!-- Display Mode -->
-    <div v-if="!isEditing && hasValue" class="flex items-center">
+    <div v-if="!isEditing && hasValue" class="flex items-center grid grid-cols-6">
       <slot
         name="display"
         :value="modelValue"
         :label="label"
       >
         <!-- Default display slot - label + text -->
-        <span class="label-text font-medium mr-2">{{ label }}:</span>
-        <span class="link link-primary truncate">{{ modelValue }}</span>
+        <span class="label-text mr-2">{{ label }}:</span>
+        <span class="link link-primary truncate col-span-2">{{ modelValue }}</span>
       </slot>
       <button
         v-if="!readonly"
         type="button"
-        class="btn btn-sm btn-ghost ml-2"
+        class="btn btn-sm btn-ghost ml-2 col-end-6 col-start-6 col-span-1"
         @click="onEdit"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
