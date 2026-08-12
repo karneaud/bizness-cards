@@ -1,24 +1,24 @@
 <template>
-  <div class="stepper-container">
+  <div class="stepper-container center">
     <!-- Steps indicator -->
-    <ul v-if="showStepsIndicator" class="steps my-2">
+    <ul v-if="showStepsIndicator" class="steps mx-auto flex justify-center align-center center my-2">
       <li
         v-for="(label, idx) in steps"
         :key="idx"
         :class="['step', currentStep === idx ? 'step-primary' : '']"
         @click="canJumpToStep(idx) && goToStep(idx)"
       >
-        {{ label }}
+        <span class="text-xs">{{ label }}</span>
       </li>
     </ul>
 
     <!-- Fieldset wrapper -->
-    <fieldset class="fieldset bg-base-200 border-base-200 rounded-box border p-4 justify-items-center">
+    <fieldset class="fieldset bg-base-200 border-base-200 rounded-box border p-4 justify-items-stretch">
       <slot :currentStep="currentStep" :totalSteps="totalSteps" />
     </fieldset>
 
     <!-- Navigation buttons -->
-    <div v-if="showNavigation" class="stepper-nav">
+    <div v-if="showNavigation" class="stepper-nav mt-2 center flex justify-center">
       <button
         v-if="showPrevButton"
         type="button"
@@ -35,7 +35,6 @@
         v-if="showNextButton"
         type="button"
         class="btn btn-circle btn-ghost"
-        :disabled="!canGoNext"
         @click="handleNext"
       >
         <svg v-if="!isLastStep" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
@@ -178,17 +177,17 @@ function handlePrev() {
 }
 
 function handleNext() {
-  if (!canGoNext.value) return
+   if (isLastStep.value) {
+    emit('complete', {})
+    return
+  } else if (!canGoNext.value) return
+
   if (!validateAndProceed('next')) return
 
   emit('next', { step: currentStep.value })
 
-  if (isLastStep.value) {
-    emit('complete', {})
-    return
-  }
-
   emit('step-complete', { step: currentStep.value })
+
   goToStep(currentStep.value + 1)
 }
 

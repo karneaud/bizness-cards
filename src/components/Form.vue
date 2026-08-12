@@ -1,5 +1,5 @@
 <template>
-  <div class="m-6 flex flex-col justify-center">
+  <div class="flex flex-col justify-center">
     <form @submit.prevent="handleSubmit" class="mt-4">
       <FormStepper
         v-model="currentStep"
@@ -92,7 +92,7 @@
               <div>
                 <UIComponent
                   v-model="card.emails[0].value"
-                  label="Email Address"
+                  label="Email"
                   placeholder="Enter a valid email address"
                   input-type="email"
                 >
@@ -154,6 +154,8 @@
               </div>
 
                 <!-- Social Links -->
+                <hr class="bg-base-300 m-0 text-base-300"/>
+                <h6 class="text-base-500 font-medium my-1">Social</h6>
                 <div>
                   <SocialLinkInput
                     v-for="(link, idx) in card.socialLinks"
@@ -166,7 +168,7 @@
                   <div class="mt-2 flex gap-2">
                     <button
                       type="button"
-                      class="btn btn-circle btn-sm btn-outline"
+                      class="btn btn-circle btn-xs btn-outline"
                       @click="addSocial"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-4">
@@ -176,7 +178,7 @@
                     <button
                       v-if="card.socialLinks.length > 1"
                       type="button"
-                      class="btn btn-circle btn-sm btn-error"
+                      class="btn btn-circle btn-xs btn-error"
                       @click="removeSocial(idx)"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-4">
