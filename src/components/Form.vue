@@ -14,7 +14,7 @@
       >
         <template #default="{ currentStep }">
           <!-- Step 1: Brand Details -->
-          <div v-show="currentStep === 0"> 
+          <div v-show="currentStep === 0" class="divide-y-1 divide-base-300"> 
               <div class="avatar mb-4">
                 <div class="mask mask-squircle h-24 w-24 cursor-pointer">
                   <img
@@ -50,7 +50,7 @@
           </div>
 
           <!-- Step 2: Contact Information -->
-          <div v-show="currentStep === 1">
+          <div v-show="currentStep === 1" class="divide-y-1 divide-base-300">
               <UIComponent
                   v-model="card.name"
                   label="Name"
@@ -64,7 +64,7 @@
           </div>
 
           <!-- Step 3: Contact Methods -->
-          <div v-show="currentStep === 2">
+          <div v-show="currentStep === 2" class="divide-y-1 divide-base-300">
               <!-- Phones -->
               <div>
                 <UIComponent
@@ -115,7 +115,7 @@
 
           <!-- Step 4: Online Presence -->
           <div v-show="currentStep === 3">
-              <div class="space-y-4 mt-3">
+              <div class="space-y-2 mt-3 divide-y-1 divide-base-300">
 <!-- Websites -->
               <div>
                 <UIComponent
@@ -140,7 +140,7 @@
                     </label>
                   </template>
                   <template #display="{ value, label }">
-                    <span class="label-text font-medium mr-2">{{ label }}:</span>
+                    <span class="label-text font-large mr-2">{{ label }}:</span>
                     <a
                       :href="'http://' + value"
                       target="_blank"
@@ -154,9 +154,8 @@
               </div>
 
                 <!-- Social Links -->
-                <hr class="bg-base-300 m-0 text-base-300"/>
-                <h6 class="text-base-500 font-medium my-1">Social</h6>
                 <div>
+                <h6 class="text-base-500 font-medium my-1">Social:</h6>
                   <SocialLinkInput
                     v-for="(link, idx) in card.socialLinks"
                     :key="'social-' + idx"
@@ -205,6 +204,11 @@ import { Phone } from '../store/models/Phone.js'
 import { Email } from '../store/models/Email.js'
 import { SocialLink } from '../store/models/SocialLink.js'
 import { Link } from '../store/models/Link.js'
+import { useMainStore } from '../store/index.js'
+
+const emit = defineEmits(['saved'])
+
+const store = useMainStore()
 
 const currentStep = ref(0)
 
