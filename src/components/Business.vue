@@ -1,29 +1,51 @@
 <template>
   <div class="w-full flex flex-col items-center justify-center p-6 text-center">
-    <figure class="flex flex-col items-center">
-      <div class="avatar mb-6">
-        <div class="mask mask-squircle w-32 h-32">
+<figure class="flex flex-col items-center relative">
+      <div
+        ref="avatarRef"
+        class="avatar w-32 mb-6 transition-all duration-300 cursor-pointer ease-in-out"
+        :class="{ 'w-64' : isExpanded }"
+        @click="toggleLogo"
+      >
+        <div class="mask mask-squircle duration-300 ">
           <img
             v-if="card.logo"
             :src="card.logo"
             :alt="card.organization"
-            class="w-full h-full object-cover"
+            class="duration-300 object-cover"
           />
           <div
             v-else
             class="bg-primary text-primary-content flex items-center justify-center w-full h-full"
           >
-            <span class="text-4xl font-bold">{{ initials }}</span>
+            <span class="text-4xl font-bold transition-all duration-300 ease-in-out" :class="isExpanded ? 'text-6xl' : 'text-4xl'">{{ initials }}</span>
           </div>
         </div>
       </div>
+
+     
+
       <figcaption class="text-center">
         <h1 class="text-3xl font-bold mb-1">{{ card.organization || 'Business Name' }}</h1>
         <h2 class="text-2xl font-semibold mb-1">{{ card.name || 'Contact Name' }}</h2>
         <p class="text-lg text-base-content/70">{{ card.title || 'Job Title' }}</p>
+        <button
+          v-show="isExpanded"
+          @click.stop.prevent="handleEdit"
+          class="absolute top-2 right-2 btn btn-circle btn-sm btn-primary"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+          </svg>
+        </button>
       </figcaption>
     </figure>
-    <div v-if="(card.websites && card.websites.length > 0) || (card.phones && card.phones.length > 0) || (card.emails && card.emails.length > 0)" class="mt-6 flex flex-col gap-2">
+      
+    <div
+      v-if="(card.websites && card.websites.length > 0) || (card.phones && card.phones.length > 0) || (card.emails && card.emails.length > 0)"
+      class="flex flex-col gap-2 mt-6 transition-all duration-300 ease-in-out"
+      :class="{  'mt-0 h-0 scale-0 opacity-0' : isExpanded }"
+    >
       <a
         v-if="card.websites && card.websites.length > 0"
         :href="card.websites[0].value"
@@ -64,7 +86,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   card: {
@@ -72,6 +94,23 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['edit'])
+
+const isExpanded = ref(false)
+const avatarRef = ref(null)
+
+function toggleLogo() {
+  isExpanded.value = !isExpanded.value
+}
+
+function handleEdit() {
+  isExpanded.value = false
+  setTimeout(() => {
+    emit('edit', props.card.id)
+  }, 300)
+}
+
 
 const initials = computed(() => {
   if (!props.card) return '?'
@@ -82,3 +121,15 @@ const initials = computed(() => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase()
 })
 </script>
+
+<style scoped>
+.edit-btn-enter-active,
+.edit-btn-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+.edit-btn-enter-from,
+.edit-btn-leave-to {
+  opacity: 0;
+  transform: scale(0.75);
+}
+</style>
