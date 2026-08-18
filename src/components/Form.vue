@@ -195,7 +195,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import FormStepper from './FormStepper.vue'
 import UIComponent from './UIComponent.vue'
 import SocialLinkInput from './SocialLinkInput.vue'
@@ -210,6 +210,13 @@ const emit = defineEmits(['saved'])
 
 const store = useMainStore()
 
+const props = defineProps({
+  editCard: {
+    type: Object,
+    default: null
+  }
+})
+
 const currentStep = ref(0)
 
 const card = reactive(new Card({
@@ -222,8 +229,20 @@ const card = reactive(new Card({
   emails: [new Email('')],
   socialLinks: [new SocialLink('', 'instagram')],
   websites: [new Link('', 'website')],
-  address: ''
+  address: '',
+  ...(props.editCard || { })
 }))
+
+watch(() => props.editCard, (newVal) => {
+  if (!newVal) return
+
+  Object.assign(card, new Card(newVal))
+  logoPreview.value = card.logo || null
+  logoFile.value = null
+  showFileInput.value = false
+  currentStep.value = 0
+  if (logoInput.value) logoInput.value.value = ''
+})
 
 const logoPreview = ref(null)
 const logoInput = ref(null)
@@ -353,14 +372,9 @@ async function handleSubmit() {
     return
   }
 
-  const payload = new FormData()
-  payload.append('card', card.toJsonString())
-  if (logoFile.value) payload.append('logo', logoFile.value)
-
-  console.log('Submitting Card model:', card)
-  console.log('Card as JSON:', card.toJson())
-  console.log('FormData payload:', payload)
-  alert('Form submitted. Check console for Card model data.')
+  store.setContact(card.toJson(Card.getSchema()), props.editCard?.id )
+  emit('saved', card)
+  currentStep.value = 0
 }
 </script>
 
