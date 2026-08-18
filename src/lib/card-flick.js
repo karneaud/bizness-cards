@@ -16,6 +16,9 @@ class CardFlick {
   #onHandleFlyOffCard = null
   #onExpand = () => {}
   #onCardCollapsed = () => {}
+  #onSwipeCycleStart = () => {}
+  #onSwipeCycleEnd = () => {}
+  #onSwipeStep = () => {}
 
   constructor(cardContainer, options = {}) {
 
@@ -34,8 +37,15 @@ class CardFlick {
     if (options.onHandleFlyOffCard) this.#onHandleFlyOffCard = options.onHandleFlyOffCard
     if (options.onExpand) this.#onExpand = options.onExpand
     if (options.onCardCollapsed) this.#onCardCollapsed = options.onCardCollapsed
+    if (options.onSwipeCycleStart) this.#onSwipeCycleStart = options.onSwipeCycleStart
+    if (options.onSwipeCycleEnd) this.#onSwipeCycleEnd = options.onSwipeCycleEnd
+    if (options.onSwipeStep) this.#onSwipeStep = options.onSwipeStep
 
     this.#initHammer()
+  }
+
+  getTopCard() {
+    return this.#getTopCard()
   }
 
   #getTopCard() {
@@ -256,6 +266,70 @@ class CardFlick {
       this.#hammerManager = null
     }
 
+  }
+
+  async swipeToCard(targetIndex, direction = 'right') {
+    if (typeof targetIndex !== 'number' || targetIndex < 0) {
+      throw new Error('Invalid target index')
+    }
+
+    if (this.#onSwipeCycleStart) this.#onSwipeCycleStart()
+
+    const topCard = this.getTopCard()
+    if (topCard && this.#isCardExpanded(topCard)) {
+      this.collapseCard(topCard)
+      await this.#delay(320)
+    }
+
+    await this.#waitForSwipe()
+
+    const allCards = this.#cardContainer.querySelectorAll('.card')
+    if (targetIndex >= allCards.length) {
+      if (this.#onSwipeCycleEnd) this.#onSwipeCycleEnd(this.getTopCard())
+      return
+    }
+
+    if (targetIndex === 0) {
+      if (this.#onSwipeCycleEnd) this.#onSwipeCycleEnd(this.getTopCard())
+      return
+    }
+
+    const swipesNeeded = targetIndex
+    for (let i = 0; i < swipesNeeded; i++) {
+      await this.#waitForSwipe()
+
+      const currentTop = this.getTopCard()
+      if (!currentTop) break
+
+      this.#swipeCard(currentTop, direction)
+
+      if (this.#onSwipeStep) {
+        this.#onSwipeStep(i + 1, swipesNeeded, currentTop)
+      }
+
+      await this.#delay(this.#transitionDuration + 50)
+      await this.#delay(50)
+    }
+
+    if (this.#onSwipeCycleEnd) this.#onSwipeCycleEnd(this.getTopCard())
+  }
+
+  #waitForSwipe() {
+    if (!this.#isSwiping) return Promise.resolve()
+    return new Promise(resolve => {
+      const tick = () => {
+        if (!this.#isSwiping) {
+          resolve()
+        } else {
+          setTimeout(tick, 50)
+        }
+      }
+      tick()
+    })
+  }
+
+  #delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
 }
