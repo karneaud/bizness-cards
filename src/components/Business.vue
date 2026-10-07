@@ -22,13 +22,10 @@
           </div>
         </div>
       </div>
-
-     
-
       <figcaption class="text-center">
-        <h1 class="text-3xl font-bold mb-1">{{ card.organization || 'Business Name' }}</h1>
-        <h2 class="text-2xl font-semibold mb-1">{{ card.name || 'Contact Name' }}</h2>
-        <p class="text-lg text-base-content/70">{{ card.title || 'Job Title' }}</p>
+        <h1 class="text-3xl text-primary-content font-bold mb-1">{{ card.organization || 'Business Name' }}</h1>
+        <h2 class="text-2xl text-base-content font-semibold mb-1">{{ card.name || 'Contact Name' }}</h2>
+        <p class="text-lg text-base-content">{{ card.title || 'Job Title' }}</p>
         <button
           v-show="isExpanded"
           @click.stop.prevent="handleEdit"
