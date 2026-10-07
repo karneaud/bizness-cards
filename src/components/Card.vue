@@ -9,6 +9,10 @@ const props = defineProps({
   expanded: {
     type: Boolean,
     default: false
+  },
+  color: {
+    type: String,
+    default: 'light'
   }
 })
 
@@ -35,7 +39,7 @@ defineExpose({
   <div 
     ref="cardRef" 
     :class="[
-      'border-base-content flex justify-center items-center card border',
+      'border-base-content bg-primary flex justify-center items-center card border',
       { 'expanded': expanded }
     ]"
     @click="handleExpand"

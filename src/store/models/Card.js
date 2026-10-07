@@ -36,7 +36,8 @@ export class Card extends Model {
     emails = [],
     socialLinks = [],
     websites = [],
-    address = ''
+    address = '',
+    color = ''
   } = {}) {
     super();
     this.id = id || generateId('card');
@@ -50,6 +51,7 @@ export class Card extends Model {
     this.socialLinks = socialLinks.map(s => s instanceof SocialLink ? s : new SocialLink(s.value, s.platform));
     this.websites = websites.map(w => w instanceof Link ? w : new Link(w.value, w.type));
     this.address = address;
+    this.color = color;
   }
 
   /**
@@ -68,7 +70,8 @@ export class Card extends Model {
       emails: yup.array().of(Email.getSchema()).nullable(),
       socialLinks: yup.array().of(SocialLink.getSchema()).nullable(),
       websites: yup.array().of(Link.getSchema()).nullable(),
-      address: yup.string().nullable()
+      address: yup.string().nullable(),
+      color: yup.string().required('Pick a color')
     }).test(
       'has-contact-info',
       'At least one contact method (phone, email, social link, or website) is required',
@@ -341,7 +344,8 @@ export class Card extends Model {
       emails: this.emails.map(email => email.toJson()),
       socialLinks: this.socialLinks.map(socialLink => socialLink.toJson()),
       websites: this.websites.map(website => website.toJson()),
-      address: this.address
+      address: this.address,
+      color: this.color
     };
 
     // Use Yup's cast method to ensure data conforms to schema
@@ -376,7 +380,8 @@ export class Card extends Model {
       emails: (json.emails || []).map(e => new Email(e.value)),
       socialLinks: (json.socialLinks || []).map(s => new SocialLink(s.value, s.platform)),
       websites: (json.websites || []).map(w => new Link(w.value, w.type)),
-      address: json.address
+      address: json.address,
+      color: json.color
     });
   }
 }
