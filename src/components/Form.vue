@@ -47,6 +47,23 @@
                   label="Business"
                   placeholder="Enter business name"
                 />
+              <div class="mt-4">
+                <span class="label-text mb-2 block">Card Theme</span>
+                <div class="grid grid-cols-8 gap-3">
+                  <button
+                    v-for="theme in themes"
+                    :key="theme"
+                    type="button"
+                    :data-theme="theme"
+                    :class="[
+                      'w-8 h-8 rounded-full border-2 transition-all bg-primary',
+                      card.color === theme ? 'border-base-100 scale-110' : 'border-secondary'
+                    ]"
+                    @click="card.color = theme"
+                    :title="theme"
+                  />
+                </div>
+              </div>
           </div>
 
           <!-- Step 2: Contact Information -->
@@ -156,28 +173,21 @@
                 <!-- Social Links -->
                 <div>
                 <h6 class="text-base-500 font-medium my-1">Social:</h6>
-                  <SocialLinkInput
+                  <!-- Existing committed social links -->
+                  <div
                     v-for="(link, idx) in card.socialLinks"
                     :key="'social-' + idx"
-                    v-model="card.socialLinks[idx].value"
-                    :platform="card.socialLinks[idx].platform"
-                    placeholder="@username"
-                    @update:platform="card.socialLinks[idx].platform = $event"
-                  />
-                  <div class="mt-2 flex gap-2">
+                    class="flex items-center gap-2"
+                  >
+                    <SocialLinkInput
+                      v-model="card.socialLinks[idx].value"
+                      :platform="card.socialLinks[idx].platform"
+                      placeholder="@username"
+                      @update:platform="card.socialLinks[idx].platform = $event"
+                    />
                     <button
                       type="button"
-                      class="btn btn-circle btn-xs btn-outline"
-                      @click="addSocial"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
-                    <button
-                      v-if="card.socialLinks.length > 1"
-                      type="button"
-                      class="btn btn-circle btn-xs btn-error"
+                      class="btn btn-circle btn-xs btn-error shrink-0"
                       @click="removeSocial(idx)"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="size-4">
@@ -185,6 +195,13 @@
                       </svg>
                     </button>
                   </div>
+                  <!-- Draft input — commits to card.socialLinks on blur -->
+                  <SocialLinkInput
+                    v-model="socialDraft.value"
+                    :platform="socialDraft.platform"
+                    placeholder="@username"
+                    @update:platform="socialDraft.platform = $event"
+                  />
                 </div>
               </div>
           </div>
@@ -195,16 +212,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import FormStepper from './FormStepper.vue'
 import UIComponent from './UIComponent.vue'
 import SocialLinkInput from './SocialLinkInput.vue'
 import { Card } from '../store/models/Card.js'
-import { Phone } from '../store/models/Phone.js'
-import { Email } from '../store/models/Email.js'
 import { SocialLink } from '../store/models/SocialLink.js'
-import { Link } from '../store/models/Link.js'
 import { useMainStore } from '../store/index.js'
+import { generateId } from '../lib/utils.js'
+import THEME_COLORS from '../lib/utils.js'
 
 const emit = defineEmits(['saved'])
 
@@ -217,26 +233,47 @@ const props = defineProps({
   }
 })
 
+const themes = computed(() => THEME_COLORS)
+
 const currentStep = ref(0)
 
-const card = reactive(new Card({
-  id: null,
+const card = reactive({
+  id: generateId('card'),
   logo: '',
   organization: '',
   name: '',
   title: '',
-  phones: [new Phone('')],
-  emails: [new Email('')],
-  socialLinks: [new SocialLink('', 'instagram')],
-  websites: [new Link('', 'website')],
+  phones: [{ value: '', type: 'phone' }],
+  emails: [{ value: '', type: 'email' }],
+  socialLinks: [],
+  websites: [{ value: '', type: 'website' }],
   address: '',
+  color: THEME_COLORS[0],
   ...(props.editCard || { })
-}))
+})
+
+const socialDraft = reactive({
+  value: '',
+  type: 'social',
+  platform: 'instagram'
+})
+
+watch(() => socialDraft.value, (newVal) => {
+  if (newVal && newVal.trim().length > 0) {
+    card.socialLinks.push({
+      value: newVal,
+      type: 'social',
+      platform: socialDraft.platform
+    })
+    socialDraft.value = ''
+    socialDraft.platform = 'instagram'
+  }
+})
 
 watch(() => props.editCard, (newVal) => {
   if (!newVal) return
 
-  Object.assign(card, new Card(newVal))
+  Object.assign(card, JSON.parse(JSON.stringify(newVal)))
   logoPreview.value = card.logo || null
   logoFile.value = null
   showFileInput.value = false
@@ -322,7 +359,7 @@ function removeLogo() {
 }
 
 function addPhone() {
-  card.addPhone(new Phone(''))
+  card.phones.push({ value: '', type: 'phone' })
 }
 function removePhone(idx) {
   if (card.phones.length > 1) {
@@ -331,8 +368,9 @@ function removePhone(idx) {
 }
 
 function addEmail() {
-  card.addEmail(new Email(''))
+  card.emails.push({ value: '', type: 'email' })
 }
+
 function removeEmail(idx) {
   if (card.emails.length > 1) {
     card.emails.splice(idx, 1)
@@ -340,21 +378,17 @@ function removeEmail(idx) {
 }
 
 function addWebsite() {
-  card.websites.push(new Link('', 'website'))
+  card.websites.push({ value: '', type: 'website' })
 }
+
 function removeWebsite(idx) {
   if (card.websites.length > 1) {
     card.websites.splice(idx, 1)
   }
 }
 
-function addSocial() {
-  card.addSocialLink(new SocialLink('', 'instagram'))
-}
 function removeSocial(idx) {
-  if (card.socialLinks.length > 1) {
-    card.socialLinks.splice(idx, 1)
-  }
+  card.socialLinks.splice(idx, 1)
 }
 
 const getPlatformLabel = SocialLink.getPlatformLabel
@@ -365,15 +399,15 @@ async function handleSubmit() {
     currentStep.value = 0
     return
   }
-
-  const isValid = await card.validate()
+  
+  const tempCard = new Card(card), isValid = await tempCard.validate()
   if (!isValid) {
     alert('Please check the form data. Validation failed.')
     return
   }
 
-  store.setContact(card.toJson(Card.getSchema()), props.editCard?.id )
-  emit('saved', card)
+  store.setContact(tempCard, props.editCard?.id )
+  emit('saved', tempCard )
   currentStep.value = 0
 }
 </script>
