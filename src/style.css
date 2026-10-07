@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 @import './css/_card.css';
+@import './css/_themes.css';
 
 html, body, .page {
     @apply overflow-hidden w-full h-full;
