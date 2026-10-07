@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@plugin 'daisyui' {
+  themes: light,nord,business,coporate,winter,emerald,silk,lofi,acid,pastel;
+}
